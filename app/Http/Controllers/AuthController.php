@@ -23,7 +23,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken($request->email)->plainTextToken;
 
         return $this->sendResponse([
             'access_token' => $token,
@@ -44,7 +44,7 @@ class AuthController extends Controller
             return $this->sendError('Invalid credentials', 401);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
+        $token = $user->createToken($request->email)->plainTextToken;
 
         return $this->sendResponse([
             'access_token' => $token,
