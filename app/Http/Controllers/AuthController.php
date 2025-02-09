@@ -49,7 +49,25 @@ class AuthController extends Controller
         return $this->sendResponse([
             'access_token' => $token,
             'token_type' => 'Bearer',
+            'message' => 'Login Successfully!'
         ]);
+    }
+
+    public function updateUser(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:8',
+        ]);
+
+        $user = User::find(auth()->user()->id);
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->save();
+
+        return $this->sendResponse(['message' => 'User updated successfully']);
     }
 
     public function logout(Request $request)
