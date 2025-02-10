@@ -9,6 +9,13 @@ use App\Traits\CommonTrait;
 class AuthController extends Controller
 {
     use CommonTrait;
+
+    public function getUser(Request $request)
+    {
+        $user = User::find(auth()->user()->id);
+        return $this->sendResponse($user);
+    }
+
     public function register(Request $request)
     {
         $request->validate([
