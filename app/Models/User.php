@@ -22,6 +22,15 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'phone',
+        'status',
+        'approved_at',
+        'franchaisor_id',
+        'investment',
+        'timeframe',
+        'joined_at',
+        'end_at',
     ];
 
     /**
