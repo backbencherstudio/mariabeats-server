@@ -32,7 +32,7 @@ return new class extends Migration
             // Franchaisor id when user is user/franchaisor
             $table->foreignId('franchaisor_id')->nullable()->constrained('franchaisors')->onDelete('cascade');
 
-            $table->rememberToken(); 
+            $table->rememberToken();
             $table->timestamps();
         });
 
