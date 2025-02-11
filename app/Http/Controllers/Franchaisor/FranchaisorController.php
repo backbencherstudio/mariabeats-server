@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Franchaisor\Franchaisor;
 use App\Models\Franchaisor\FranchaisorCountries;
 use App\Models\Franchaisor\FranchaisorFile;
+use App\Models\Franchaisor\FranchaisorRequest;
 use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +47,7 @@ class FranchaisorController extends Controller
             'location' => 'required|string|max:255',
             'interested_countries' => 'required',
             'industry' => 'required|string|max:255',
-            'investment' => 'required|numeric',
+            // 'investment' => 'required|numeric',
             'timeframe' => 'required|string|max:255',
             'joined_at' => 'required|date',
             'end_at' => 'required|date',
@@ -81,7 +82,7 @@ class FranchaisorController extends Controller
         $franchaisor->phone_number = $request->phone_number;
         $franchaisor->address = $request->location;
         $franchaisor->industry = $request->industry;
-        $franchaisor->investment = $request->investment;
+        // $franchaisor->investment = $request->investment;
         $franchaisor->timeframe = $request->timeframe;
         $franchaisor->joined_at = $request->joined_at;
         $franchaisor->end_at = $request->end_at;
@@ -180,6 +181,8 @@ class FranchaisorController extends Controller
                 $franchaisorFile->save();
             }
         }
+
+        
         return $this->sendResponse(['franchaisor' => $franchaisor, 'message' => 'Franchaisor created successfully']);
     }
 
@@ -221,7 +224,6 @@ class FranchaisorController extends Controller
             'location' => 'string|max:255',
             'interested_countries' => 'required',
             'industry' => 'string|max:255',
-            'investment' => 'numeric',
             'timeframe' => 'string|max:255',
             'joined_at' => 'date',
             'end_at' => 'date',
@@ -270,9 +272,6 @@ class FranchaisorController extends Controller
         if($request->industry){
             $franchaisor->industry = $request->industry;
         }
-        if($request->investment){
-            $franchaisor->investment = $request->investment;
-        }
         if($request->timeframe){
             $franchaisor->timeframe = $request->timeframe;
         }
@@ -309,12 +308,14 @@ class FranchaisorController extends Controller
         $franchaisor->save();
 
         //update franchaisor countries
-        FranchaisorCountries::where('franchaisor_id', $id)->delete();
+        if($request->interested_countries){
+            FranchaisorCountries::where('franchaisor_id', $id)->delete();
         foreach ($request->interested_countries as $country) {
             $franchaisorCountry = new FranchaisorCountries();
             $franchaisorCountry->franchaisor_id = $franchaisor->id;
-            $franchaisorCountry->country_id = $country;
-            $franchaisorCountry->save();
+                $franchaisorCountry->country_id = $country;
+                $franchaisorCountry->save();
+            }
         }
 
         //update logo
@@ -404,4 +405,41 @@ class FranchaisorController extends Controller
         $franchaisor->delete();
         return $this->sendResponse(['message' => 'Franchaisor deleted successfully']);
     }
+
+    public function franchaisorRequest(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'phone_number' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'investment_amount' => 'required|numeric',
+            'timeframe' => 'required|string|max:255',
+            'preferred_location' => 'required|string|max:255',
+            'message' => 'required|string|max:255',
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        $franchaisorRequest = new FranchaisorRequest();
+        $franchaisorRequest->name = $request->name;
+        $franchaisorRequest->email = $request->email;
+        $franchaisorRequest->phone_number = $request->phone_number;
+        $franchaisorRequest->country = $request->country;
+        $franchaisorRequest->investment_amount = $request->investment_amount;
+        $franchaisorRequest->timeframe = $request->timeframe;
+        $franchaisorRequest->preferred_location = $request->preferred_location;
+        $franchaisorRequest->message = $request->message;
+        $franchaisorRequest->save();
+        return $this->sendResponse(['franchaisorRequest' => $franchaisorRequest, 'message' => 'Franchaisor request sent successfully']);
+    }
+
+    public function franchaisorRequests(Request $request)
+    {
+        $franchaisorRequests = FranchaisorRequest::all();
+        return $this->sendResponse($franchaisorRequests);
+    }
+    
 }

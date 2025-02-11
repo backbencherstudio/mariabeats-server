@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('email')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('country')->nullable();
-            $table->string('investment_amount ')->nullable();
+            $table->string('investment_amount')->nullable();
             $table->string('timeframe')->nullable();
             $table->string('preferred_location')->nullable();
             $table->text('message')->nullable();

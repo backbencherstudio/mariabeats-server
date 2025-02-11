@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Franchaisee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Franchaisee\FranchaiseeRequest;
+use App\Models\Franchaisor\FranchaisorRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Traits\CommonTrait;
@@ -60,6 +62,7 @@ class FranchaiseeController extends Controller
         $franchaisee->name = $request->name;
         $franchaisee->email = $request->email;
         $franchaisee->password = Hash::make('password');
+        $franchaisee->approved_at = now();
         $franchaisee->phone_number = $request->phone_number;
         $franchaisee->country = $request->country;
         $franchaisee->preferred_location = $request->preferred_location;
@@ -115,4 +118,49 @@ class FranchaiseeController extends Controller
         $franchaisee->delete();
         return $this->sendResponse($franchaisee, 'Franchaisee deleted successfully');
     }
+
+    public function franchaiseeRequest(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255',
+            'phone_number' => 'required|string|max:255',
+            'country' => 'required|string|max:255',
+            'preferred_location' => 'required|string|max:255',
+            'investment' => 'required|numeric',
+            'timeframe' => 'required|string|max:255',
+            'message' => 'required|string|max:255',
+        ]);
+
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        $franchaiseeRequest = new FranchaiseeRequest();
+        $franchaiseeRequest->name = $request->name;
+        $franchaiseeRequest->email = $request->email;
+        $franchaiseeRequest->phone_number = $request->phone_number;
+        $franchaiseeRequest->country = $request->country;
+        $franchaiseeRequest->preferred_location = $request->preferred_location;
+        $franchaiseeRequest->investment = $request->investment;
+        $franchaiseeRequest->timeframe = $request->timeframe;
+        $franchaiseeRequest->message = $request->message;
+        $franchaiseeRequest->save();
+        return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request sent successfully']);
+    }
+
+    public function franchaiseeRequests(Request $request)
+    {
+        $franchaiseeRequests = FranchaiseeRequest::all();
+        return $this->sendResponse($franchaiseeRequests);
+    }
+
+    public function franchaiseeRequestUpdate(Request $request, string $id)
+    {
+        $franchaiseeRequest = FranchaiseeRequest::find($id);
+        $franchaiseeRequest->status = $request->status;
+        $franchaiseeRequest->save();
+        return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request updated successfully']);
+    }
+
 }

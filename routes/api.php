@@ -14,16 +14,16 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/franchaisee-request', [FranchaiseeController::class, 'store']);
-Route::post('/franchaisor-request', [FranchaisorController::class, 'store']);
+Route::post('/franchaisee-request', [FranchaiseeController::class, 'franchaiseeRequest']);
+Route::post('/franchaisor-request', [FranchaisorController::class, 'franchaisorRequest']);
 Route::get('/franchaisors', [FranchaiseeController::class, 'index']);
+Route::get('/countries', [CountryController::class, 'index']);
 
 
 Route::group(['middleware' => 'auth:sanctum' , 'role:admin'], function () {
     Route::get('/user', [AuthController::class, 'getUser']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/update', [AuthController::class, 'updateUser']);
-    Route::get('/countries', [CountryController::class, 'index']);
     Route::get('/admin/franchaisors', [FranchaisorController::class, 'index']);
     Route::post('/admin/franchaisor', [FranchaisorController::class, 'store']);
     Route::get('/admin/franchaisor/{id}', [FranchaisorController::class, 'show']);
@@ -35,4 +35,7 @@ Route::group(['middleware' => 'auth:sanctum' , 'role:admin'], function () {
     Route::patch('/admin/franchaisee/{id}', [FranchaiseeController::class, 'update']);
     Route::delete('/admin/franchaisee/{id}', [FranchaiseeController::class, 'destroy']);
     Route::get('/admin/dashboard', [DashboardController::class, 'index']);
+    Route::get('/admin/franchaisee-requests', [FranchaiseeController::class, 'franchaiseeRequests']);
+    Route::get('/admin/franchaisor-requests', [FranchaisorController::class, 'franchaisorRequests']);
+    Route::patch('/admin/franchaisee-request/{id}', [FranchaiseeController::class, 'franchaiseeRequestUpdate']);
 });
