@@ -10,7 +10,7 @@ class FranchaisorCountries extends Model
 
     protected $table = 'franchaisor_countries';
 
-    protected $fillable = ['name', 'code', 'status'];
+    protected $fillable = ['name', 'code'];
 
     public function franchaisor()
     {

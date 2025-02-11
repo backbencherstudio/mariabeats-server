@@ -4,10 +4,12 @@ namespace App\Http\Controllers\Franchaisor;
 
 use App\Http\Controllers\Controller;
 use App\Models\Franchaisor\Franchaisor;
+use App\Models\Franchaisor\FranchaisorCountries;
 use App\Models\Franchaisor\FranchaisorFile;
 use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 
 class FranchaisorController extends Controller
 {
@@ -17,7 +19,8 @@ class FranchaisorController extends Controller
      */
     public function index()
     {
-        //
+        $franchaisors = Franchaisor::all();
+        return $this->sendResponse($franchaisors);
     }
 
     /**
@@ -33,13 +36,15 @@ class FranchaisorController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        // dd($request->all());
+        $validator = Validator::make($request->all(), [
             'brand_name' => 'required|string|max:255',
             'name' => 'required|string|max:255',
             'position' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'phone_number' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
+            'location' => 'required|string|max:255',
+            'interested_countries' => 'required',
             'industry' => 'required|string|max:255',
             'investment' => 'required|numeric',
             'timeframe' => 'required|string|max:255',
@@ -63,13 +68,18 @@ class FranchaisorController extends Controller
             'details2_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        //create franchaisor
         $franchaisor = new Franchaisor();
         $franchaisor->brand_name = $request->brand_name;
         $franchaisor->name = $request->name;
         $franchaisor->position = $request->position;
         $franchaisor->email = $request->email;
         $franchaisor->phone_number = $request->phone_number;
-        $franchaisor->address = $request->address;
+        $franchaisor->address = $request->location;
         $franchaisor->industry = $request->industry;
         $franchaisor->investment = $request->investment;
         $franchaisor->timeframe = $request->timeframe;
@@ -87,6 +97,15 @@ class FranchaisorController extends Controller
         $franchaisor->details2_description = $request->details2_description;
         $franchaisor->save();
 
+        //create franchaisor countries 
+        foreach ($request->interested_countries as $country) {
+            $franchaisorCountry = new FranchaisorCountries();
+            $franchaisorCountry->franchaisor_id = $franchaisor->id;
+            $franchaisorCountry->country_id = $country;
+            $franchaisorCountry->save();
+        }
+
+        //create logo
         if ($request->hasFile('logo')) {
             $logo = $request->file('logo');
             $path = Storage::put('franchaisors', $logo);
@@ -94,6 +113,7 @@ class FranchaisorController extends Controller
             $franchaisor->save();
         }
 
+        //create cover images
         if ($request->hasFile('cover_images')) {
             $coverImages = $request->file('cover_images');
             foreach ($coverImages as $image) {
@@ -107,6 +127,7 @@ class FranchaisorController extends Controller
             }
         }
 
+        //create brief gallary images
         if ($request->hasFile('brief_gallary_images')) {
             $briefGallaryImages = $request->file('brief_gallary_images');
             foreach ($briefGallaryImages as $image) {
@@ -120,6 +141,7 @@ class FranchaisorController extends Controller
             }
         }
 
+        //create brief video
         if ($request->hasFile('brief_video')) {
             $briefVideo = $request->file('brief_video');
             $path = Storage::put('franchaisors', $briefVideo);
@@ -131,6 +153,7 @@ class FranchaisorController extends Controller
             $franchaisorFile->save();
         }
 
+        //create details1 images
         if ($request->hasFile('details1_images')) {
             $details1Images = $request->file('details1_images');
             foreach ($details1Images as $image) {
@@ -144,6 +167,7 @@ class FranchaisorController extends Controller
             }
         }
 
+        //create details2 images
         if ($request->hasFile('details2_images')) {
             $details2Images = $request->file('details2_images');
             foreach ($details2Images as $image) {
@@ -171,6 +195,7 @@ class FranchaisorController extends Controller
         $franchaisor->brief_video = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'brief')->first();
         $franchaisor->details1_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'details1')->get();
         $franchaisor->details2_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'details2')->get();
+        $franchaisor->interested_countries = FranchaisorCountries::where('franchaisor_id', $id)->get();
         return $this->sendResponse($franchaisor);
     }
 
@@ -187,60 +212,112 @@ class FranchaisorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'brand_name' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'phone_number' => 'required|string|max:255',
-            'address' => 'required|string|max:255',
-            'industry' => 'required|string|max:255',
-            'investment' => 'required|numeric',
-            'timeframe' => 'required|string|max:255',
-            'joined_at' => 'required|date',
-            'end_at' => 'required|date',
+        $validator = Validator::make($request->all(), [
+            'brand_name' => 'string|max:255',
+            'name' => 'string|max:255',
+            'position' => 'string|max:255',
+            'email' => 'string|email|max:255|unique:users',
+            'phone_number' => 'string|max:255',
+            'location' => 'string|max:255',
+            'interested_countries' => 'required',
+            'industry' => 'string|max:255',
+            'investment' => 'numeric',
+            'timeframe' => 'string|max:255',
+            'joined_at' => 'date',
+            'end_at' => 'date',
             'cover_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'logo' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'brief_heading' => 'required|string|max:255',
-            'brief_description' => 'required|string|max:255',
-            'brief_country_of_region' => 'required|string|max:255',
-            'brief_available' => 'required|string|max:255',
-            'brief_business_type' => 'required|string|max:255',
-            'brief_min_investment' => 'required|numeric',
-            'details1_heading' => 'required|string|max:255',
-            'details1_description' => 'required|string|max:255',
-            'details2_heading' => 'required|string|max:255',
-            'details2_description' => 'required|string|max:255',
+            'brief_heading' => 'string|max:255',
+            'brief_description' => 'string|max:255',
+            'brief_country_of_region' => 'string|max:255',
+            'brief_available' => 'string|max:255',
+            'brief_business_type' => 'string|max:255',
+            'brief_min_investment' => 'numeric',
+            'details1_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'details1_heading' => 'string|max:255',
+            'details1_description' => 'string|max:255',
+            'details2_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+            'details2_heading' => 'string|max:255',
+            'details2_description' => 'string|max:255',
             'brief_gallary_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'brief_video' => 'file|mimes:mp4,mov,avi,wmv,flv,mpeg,mpg,m4v,3gp,3g2,mj2,webm,mkv|max:2048',
-            'details1_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'details2_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
+        if($validator->fails()){
+            return $this->sendError('Validation Error.', $validator->errors());
+        }
+
+        //update franchaisor
         $franchaisor = Franchaisor::find($id);
-        $franchaisor->brand_name = $request->brand_name;
-        $franchaisor->name = $request->name;
-        $franchaisor->position = $request->position;
-        $franchaisor->email = $request->email;
-        $franchaisor->phone_number = $request->phone_number;
-        $franchaisor->address = $request->address;
-        $franchaisor->industry = $request->industry;
-        $franchaisor->investment = $request->investment;
-        $franchaisor->timeframe = $request->timeframe;
-        $franchaisor->joined_at = $request->joined_at;
-        $franchaisor->end_at = $request->end_at;
-        $franchaisor->brief_heading = $request->brief_heading;
-        $franchaisor->brief_description = $request->brief_description;
-        $franchaisor->brief_country_of_region = $request->brief_country_of_region;
-        $franchaisor->brief_available = $request->brief_available;
-        $franchaisor->brief_business_type = $request->brief_business_type;
-        $franchaisor->brief_min_investment = $request->brief_min_investment;
-        $franchaisor->details1_heading = $request->details1_heading;
-        $franchaisor->details1_description = $request->details1_description;
-        $franchaisor->details2_heading = $request->details2_heading;
-        $franchaisor->details2_description = $request->details2_description;
+        if($request->brand_name){
+            $franchaisor->brand_name = $request->brand_name;
+        }
+        if($request->name){
+            $franchaisor->name = $request->name;
+        }
+        if($request->position){
+            $franchaisor->position = $request->position;
+        }
+        if($request->email){
+            $franchaisor->email = $request->email;
+        }
+        if($request->phone_number){
+            $franchaisor->phone_number = $request->phone_number;
+        }
+        if($request->location){
+            $franchaisor->address = $request->location;
+        }
+        if($request->industry){
+            $franchaisor->industry = $request->industry;
+        }
+        if($request->investment){
+            $franchaisor->investment = $request->investment;
+        }
+        if($request->timeframe){
+            $franchaisor->timeframe = $request->timeframe;
+        }
+        if($request->joined_at){
+            $franchaisor->joined_at = $request->joined_at;
+        }
+        if($request->end_at){
+            $franchaisor->end_at = $request->end_at;
+        }
+        if($request->brief_heading){
+            $franchaisor->brief_heading = $request->brief_heading;
+        }
+        if($request->brief_description){
+            $franchaisor->brief_description = $request->brief_description;
+        }
+        if($request->brief_country_of_region){
+            $franchaisor->brief_country_of_region = $request->brief_country_of_region;
+        }
+        if($request->brief_available){
+            $franchaisor->brief_available = $request->brief_available;
+        }
+        if($request->brief_business_type){
+            $franchaisor->brief_business_type = $request->brief_business_type;
+        }
+        if($request->brief_min_investment){
+            $franchaisor->brief_min_investment = $request->brief_min_investment;
+        }
+        if($request->details1_heading){
+            $franchaisor->details1_heading = $request->details1_heading;
+        }
+        if($request->details1_description){
+            $franchaisor->details1_description = $request->details1_description;
+        }
         $franchaisor->save();
 
+        //update franchaisor countries
+        FranchaisorCountries::where('franchaisor_id', $id)->delete();
+        foreach ($request->interested_countries as $country) {
+            $franchaisorCountry = new FranchaisorCountries();
+            $franchaisorCountry->franchaisor_id = $franchaisor->id;
+            $franchaisorCountry->country_id = $country;
+            $franchaisorCountry->save();
+        }
+
+        //update logo
         if ($request->hasFile('logo')) {
             $logo = $request->file('logo');
             $path = Storage::put('franchaisors', $logo);
@@ -248,6 +325,7 @@ class FranchaisorController extends Controller
             $franchaisor->save();
         }
 
+        //update cover images
         if ($request->hasFile('cover_images')) {
             $coverImages = $request->file('cover_images');
             foreach ($coverImages as $image) {
@@ -261,6 +339,7 @@ class FranchaisorController extends Controller
             }
         }
 
+        //update brief gallary images
         if ($request->hasFile('brief_gallary_images')) {
             $briefGallaryImages = $request->file('brief_gallary_images');
             foreach ($briefGallaryImages as $image) {
@@ -274,6 +353,7 @@ class FranchaisorController extends Controller
             }
         }   
 
+        //update brief video
         if ($request->hasFile('brief_video')) {
             $briefVideo = $request->file('brief_video');
             $path = Storage::put('franchaisors', $briefVideo);
@@ -285,6 +365,7 @@ class FranchaisorController extends Controller
             $franchaisorFile->save();
         }
 
+        //update details1 images
         if ($request->hasFile('details1_images')) { 
             $details1Images = $request->file('details1_images');
             foreach ($details1Images as $image) {
@@ -298,6 +379,7 @@ class FranchaisorController extends Controller
             }
         }
 
+        //update details2 images
         if ($request->hasFile('details2_images')) {
             $details2Images = $request->file('details2_images');
             foreach ($details2Images as $image) {
