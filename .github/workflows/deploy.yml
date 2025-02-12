@@ -15,12 +15,13 @@ jobs:
       - name: Pull latest code
         run: |
           cd /var/www/backend
-          sudo git fetch --all
-          sudo git reset --hard origin/main
-          sudo git pull origin main
+          git fetch --all
+          git reset --hard origin/main
+          git pull origin main
 
       - name: Install dependencies
         run: |
+          cd /var/www/backend
           composer install
           
       - name: Migrate database
