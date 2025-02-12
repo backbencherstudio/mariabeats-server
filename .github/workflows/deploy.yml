@@ -1,0 +1,30 @@
+name: Deploy App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Pull latest code
+        run: |
+          cd /var/www/backend
+          git fetch --all
+          git reset --hard origin/main
+          git pull origin main
+
+      - name: Install dependencies
+        run: |
+          cd /var/www/backend
+          composer install
+          
+      - name: Migrate database
+        run: |
+          cd /var/www/backend
+          php artisan migrate

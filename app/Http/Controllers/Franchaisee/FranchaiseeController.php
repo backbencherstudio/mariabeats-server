@@ -11,6 +11,8 @@ use App\Traits\CommonTrait;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
+
 class FranchaiseeController extends Controller
 {
     use CommonTrait;
@@ -20,9 +22,9 @@ class FranchaiseeController extends Controller
     public function index(Request $request)
     {
         $type = $request->type;
-        if($type == 'request'){
+        if ($type == 'request') {
             $franchaisees = User::where('role', 'user')->where('approved_at', null)->get();
-        }else{
+        } else {
             $franchaisees = User::where('role', 'user')->where('approved_at', '!=', null)->get();
         }
         return $this->sendResponse($franchaisees);
@@ -47,7 +49,7 @@ class FranchaiseeController extends Controller
             'phone_number' => 'required',
             'country' => 'required',
             'preferred_location' => 'required',
-            'investment' => 'required', 
+            'investment' => 'required',
             'timeframe' => 'required',
             'joined_at' => 'required',
             'end_at' => 'required',
@@ -75,7 +77,6 @@ class FranchaiseeController extends Controller
         $franchaisee->save();
 
         return $this->sendResponse($franchaisee, 'Franchaisee created successfully');
-        
     }
 
     /**
@@ -99,7 +100,7 @@ class FranchaiseeController extends Controller
      */
     public function update(string $id)
     {
-        if(Auth::user()->role != 'admin'){
+        if (Auth::user()->role != 'admin') {
             return $this->sendError('Unauthorized', ['error' => 'Unauthorized']);
         }
         $franchaisee = User::find($id);
@@ -132,7 +133,7 @@ class FranchaiseeController extends Controller
             'message' => 'required|string|max:255',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
@@ -162,5 +163,4 @@ class FranchaiseeController extends Controller
         $franchaiseeRequest->save();
         return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request updated successfully']);
     }
-
 }
