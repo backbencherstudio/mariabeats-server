@@ -16,7 +16,7 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/franchaisee-request', [FranchaiseeController::class, 'franchaiseeRequest']);
 Route::post('/franchaisor-request', [FranchaisorController::class, 'franchaisorRequest']);
-Route::get('/franchaisors', [FranchaiseeController::class, 'index']);
+Route::get('/franchaisors', [FranchaisorController::class, 'index']);
 Route::get('/countries', [CountryController::class, 'index']);
 
 
