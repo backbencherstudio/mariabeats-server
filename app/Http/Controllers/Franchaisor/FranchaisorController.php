@@ -11,6 +11,7 @@ use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use Symfony\Component\HttpFoundation\Response;
 
 class FranchaisorController extends Controller
 {
@@ -27,10 +28,7 @@ class FranchaisorController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
-    {
-        
-    }
+    public function create() {}
 
     /**
      * Store a newly created resource in storage.
@@ -69,7 +67,7 @@ class FranchaisorController extends Controller
             'details2_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
@@ -172,7 +170,7 @@ class FranchaisorController extends Controller
         if ($request->hasFile('details2_images')) {
             $details2Images = $request->file('details2_images');
             foreach ($details2Images as $image) {
-                $path = Storage::put('franchaisors', $image);    
+                $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
                 $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $image->getClientOriginalExtension();
@@ -182,7 +180,7 @@ class FranchaisorController extends Controller
             }
         }
 
-        
+
         return $this->sendResponse(['franchaisor' => $franchaisor, 'message' => 'Franchaisor created successfully']);
     }
 
@@ -245,74 +243,74 @@ class FranchaisorController extends Controller
             'brief_video' => 'file|mimes:mp4,mov,avi,wmv,flv,mpeg,mpg,m4v,3gp,3g2,mj2,webm,mkv|max:2048',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
         //update franchaisor
         $franchaisor = Franchaisor::find($id);
-        if($request->brand_name){
+        if ($request->brand_name) {
             $franchaisor->brand_name = $request->brand_name;
         }
-        if($request->name){
+        if ($request->name) {
             $franchaisor->name = $request->name;
         }
-        if($request->position){
+        if ($request->position) {
             $franchaisor->position = $request->position;
         }
-        if($request->email){
+        if ($request->email) {
             $franchaisor->email = $request->email;
         }
-        if($request->phone_number){
+        if ($request->phone_number) {
             $franchaisor->phone_number = $request->phone_number;
         }
-        if($request->location){
+        if ($request->location) {
             $franchaisor->address = $request->location;
         }
-        if($request->industry){
+        if ($request->industry) {
             $franchaisor->industry = $request->industry;
         }
-        if($request->timeframe){
+        if ($request->timeframe) {
             $franchaisor->timeframe = $request->timeframe;
         }
-        if($request->joined_at){
+        if ($request->joined_at) {
             $franchaisor->joined_at = $request->joined_at;
         }
-        if($request->end_at){
+        if ($request->end_at) {
             $franchaisor->end_at = $request->end_at;
         }
-        if($request->brief_heading){
+        if ($request->brief_heading) {
             $franchaisor->brief_heading = $request->brief_heading;
         }
-        if($request->brief_description){
+        if ($request->brief_description) {
             $franchaisor->brief_description = $request->brief_description;
         }
-        if($request->brief_country_of_region){
+        if ($request->brief_country_of_region) {
             $franchaisor->brief_country_of_region = $request->brief_country_of_region;
         }
-        if($request->brief_available){
+        if ($request->brief_available) {
             $franchaisor->brief_available = $request->brief_available;
         }
-        if($request->brief_business_type){
+        if ($request->brief_business_type) {
             $franchaisor->brief_business_type = $request->brief_business_type;
         }
-        if($request->brief_min_investment){
+        if ($request->brief_min_investment) {
             $franchaisor->brief_min_investment = $request->brief_min_investment;
         }
-        if($request->details1_heading){
+        if ($request->details1_heading) {
             $franchaisor->details1_heading = $request->details1_heading;
         }
-        if($request->details1_description){
+        if ($request->details1_description) {
             $franchaisor->details1_description = $request->details1_description;
         }
         $franchaisor->save();
 
         //update franchaisor countries
-        if($request->interested_countries){
+        if ($request->interested_countries) {
             FranchaisorCountries::where('franchaisor_id', $id)->delete();
-        foreach ($request->interested_countries as $country) {
-            $franchaisorCountry = new FranchaisorCountries();
-            $franchaisorCountry->franchaisor_id = $franchaisor->id;
+            foreach ($request->interested_countries as $country) {
+                $franchaisorCountry = new FranchaisorCountries();
+                $franchaisorCountry->franchaisor_id = $franchaisor->id;
                 $franchaisorCountry->country_id = $country;
                 $franchaisorCountry->save();
             }
@@ -352,7 +350,7 @@ class FranchaisorController extends Controller
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
                 $franchaisorFile->save();
             }
-        }   
+        }
 
         //update brief video
         if ($request->hasFile('brief_video')) {
@@ -367,7 +365,7 @@ class FranchaisorController extends Controller
         }
 
         //update details1 images
-        if ($request->hasFile('details1_images')) { 
+        if ($request->hasFile('details1_images')) {
             $details1Images = $request->file('details1_images');
             foreach ($details1Images as $image) {
                 $path = Storage::put('franchaisors', $image);
@@ -396,6 +394,44 @@ class FranchaisorController extends Controller
         return $this->sendResponse(['franchaisor' => $franchaisor, 'message' => 'Franchaisor updated successfully']);
     }
 
+    public function exportData(Request $request)
+    {
+        $fileName = 'franchaisors.csv';
+        $franchisorsData = Franchaisor::all();
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $fields = ['ID', 'Name', 'Company Name', 'Email', 'Industry', 'Based On', 'Interested Expansion', 'Timeframe', 'Date of Request', 'Ending Date']; // CSV headers
+
+        $handle = fopen('php://output', 'w');
+        fputcsv($handle, $fields); // CSV headers
+
+        foreach ($franchisorsData as $data) {
+            $expansion = FranchaisorCountries::where('franchaisor_id', $data->id)->get();
+            $expansion = $expansion->map(function ($item) {
+                return $item->country->name;
+            });
+            $expansion = $expansion->implode(', ');
+            fputcsv($handle, [$data->id, $data->name, $data->brand_name, $data->email, $data->industry, $data->address, $expansion, $data->timeframe, $data->joined_at, $data->end_at]);
+        }
+
+        fclose($handle);
+
+        return response()->stream(
+            function () use ($handle) {
+                fpassthru($handle);
+            },
+            Response::HTTP_OK,
+            $headers
+        );
+    }
+
     /**
      * Remove the specified resource from storage.
      */
@@ -419,7 +455,7 @@ class FranchaisorController extends Controller
             'message' => 'required|string|max:255',
         ]);
 
-        if($validator->fails()){
+        if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
@@ -441,5 +477,4 @@ class FranchaisorController extends Controller
         $franchaisorRequests = FranchaisorRequest::all();
         return $this->sendResponse($franchaisorRequests);
     }
-    
 }
