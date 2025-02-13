@@ -3,11 +3,13 @@
 namespace App\Http\Controllers\Franchaisee;
 
 use App\Http\Controllers\Controller;
+use App\Models\Address\Country;
 use App\Models\Franchaisee\FranchaiseeRequest;
 use App\Models\Franchaisor\FranchaisorRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Traits\CommonTrait;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -21,11 +23,41 @@ class FranchaiseeController extends Controller
      */
     public function index(Request $request)
     {
+        $query = User::where('role', 'user');
         $type = $request->type;
         if ($type == 'request') {
-            $franchaisees = User::where('role', 'user')->where('approved_at', null)->get();
+            $query->where('approved_at', null);
         } else {
-            $franchaisees = User::where('role', 'user')->where('approved_at', '!=', null)->get();
+            $query->where('approved_at', '!=', null);
+        }
+        if ($request->has('start_date') && $request->has('end_date')) {
+            $query->whereBetween('joined_at', [
+                Carbon::parse($request->query('start_date'))->format('Y-m-d 00:00:00'),
+                Carbon::parse($request->query('end_date'))->format('Y-m-d 23:59:59')
+            ]);
+        } elseif ($request->has('start_date')) {
+            $query->where('joined_at', '=', Carbon::parse($request->query('start_date'))->format('Y-m-d 00:00:00'));
+        } elseif ($request->has('end_date')) {
+            $query->where('joined_at', '=', Carbon::parse($request->query('end_date'))->format('Y-m-d 23:59:59'));
+        }
+        if ($request->has('location_id')) {
+            $query->where('address', (int) $request->query('location_id'));
+        }
+        if ($request->has('investment')) {
+            $investmentRange = explode('-', $request->query('investment'));
+            if (count($investmentRange) == 2) {
+                $query->whereBetween('investment', [
+                    (int) $investmentRange[0],
+                    (int) $investmentRange[1]
+                ]);
+            }
+        }
+        if ($request->has('timeframe')) {
+            $query->where('timeframe', (int) $request->query('timeframe'));
+        }
+        $franchaisees = $query->get();
+        foreach ($franchaisees as $franchaisee) {
+            $franchaisee->location = Country::where('id', (int) $franchaisee->country)->first();
         }
         return $this->sendResponse($franchaisees);
     }

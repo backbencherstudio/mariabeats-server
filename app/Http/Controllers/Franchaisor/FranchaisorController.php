@@ -9,6 +9,7 @@ use App\Models\Franchaisor\FranchaisorCountries;
 use App\Models\Franchaisor\FranchaisorFile;
 use App\Models\Franchaisor\FranchaisorRequest;
 use App\Traits\CommonTrait;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -31,11 +32,14 @@ class FranchaisorController extends Controller
         }
 
         if ($request->has('start_date') && $request->has('end_date')) {
-            $query->whereBetween('created_at', [$request->query('start_date'), $request->query('end_date')]);
+            $query->whereBetween('joined_at', [
+                Carbon::parse($request->query('start_date'))->format('Y-m-d 00:00:00'),
+                Carbon::parse($request->query('end_date'))->format('Y-m-d 23:59:59')
+            ]);
         } elseif ($request->has('start_date')) {
-            $query->where('created_at', '>=', $request->query('start_date'));
+            $query->where('joined_at', '=', Carbon::parse($request->query('start_date'))->format('Y-m-d 00:00:00'));
         } elseif ($request->has('end_date')) {
-            $query->where('created_at', '<=', $request->query('end_date'));
+            $query->where('end_at', '=', Carbon::parse($request->query('end_date'))->format('Y-m-d 23:59:59'));
         }
 
         if ($request->has('industry')) {
@@ -44,6 +48,10 @@ class FranchaisorController extends Controller
 
         if ($request->has('location_id')) {
             $query->where('address', (int) $request->query('location_id'));
+        }
+
+        if ($request->has('brand_name')) {
+            $query->where('brand_name', 'like', '%' . $request->query('brand_name') . '%');
         }
 
         $franchaisors = $query->get();
