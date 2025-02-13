@@ -18,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 class FranchaisorController extends Controller
 {
     use CommonTrait;
+    
     /**
      * Display a listing of the resource.
      */
