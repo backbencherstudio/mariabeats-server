@@ -160,7 +160,7 @@ class FranchaiseeController extends Controller
             'phone_number' => 'required|string|max:255',
             'country' => 'required|string|max:255',
             'preferred_location' => 'required|string|max:255',
-            'investment' => 'required|numeric',
+            'investment_amount' => 'required|numeric',
             'timeframe' => 'required|string|max:255',
             'message' => 'required|string|max:255',
         ]);
@@ -175,7 +175,7 @@ class FranchaiseeController extends Controller
         $franchaiseeRequest->phone_number = $request->phone_number;
         $franchaiseeRequest->country = $request->country;
         $franchaiseeRequest->preferred_location = $request->preferred_location;
-        $franchaiseeRequest->investment = $request->investment;
+        $franchaiseeRequest->investment_amount = $request->investment_amount;
         $franchaiseeRequest->timeframe = $request->timeframe;
         $franchaiseeRequest->message = $request->message;
         $franchaiseeRequest->save();
