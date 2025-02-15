@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // for franchisor/ contact us
-        Schema::create('franchisor_requests', function (Blueprint $table) {
+        // for franchisee/ contact us
+        Schema::create('franchaisee_requests', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
             $table->string('company_name')->nullable();

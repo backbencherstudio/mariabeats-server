@@ -510,6 +510,7 @@ class FranchaisorController extends Controller
         return $this->sendResponse(['message' => 'Franchaisor deleted successfully']);
     }
 
+    // contact us
     public function franchaisorRequest(Request $request)
     {
         $validator = Validator::make($request->all(), [
