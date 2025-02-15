@@ -42,6 +42,5 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::get('/admin/franchaisor-requests', [FranchaisorController::class, 'franchaisorRequests']);
     Route::patch('/admin/franchaisee-request/{id}', [FranchaiseeController::class, 'franchaiseeRequestUpdate']);
     Route::patch('/admin/franchaisor-request/{id}', [FranchaisorController::class, 'franchaisorRequestUpdate']);
-
+    Route::resource('/admin/featured', FeaturedController::class);
 });
-Route::resource('/admin/featured', FeaturedController::class);

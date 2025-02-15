@@ -141,6 +141,47 @@ class FranchaiseeController extends Controller
         return $this->sendResponse('Franchaisee updated successfully');
     }
 
+    public function exportData(Request $request)
+    {
+        $fileName = 'franchaisees.csv';
+        $franchaiseesData = User::where('role', 'user')->get();
+
+        $headers = [
+            "Content-type"        => "text/csv",
+            "Content-Disposition" => "attachment; filename=$fileName",
+            "Pragma"              => "no-cache",
+            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
+            "Expires"             => "0"
+        ];
+
+        $callback = function () use ($franchaiseesData) {
+            $handle = fopen('php://output', 'w');
+
+            // CSV headers
+            $fields = ['ID', 'Name', 'Email', 'Number', 'Country', 'Based On', 'Investment', 'Investment Brand', 'Date of Request'];
+            fputcsv($handle, $fields);
+
+            foreach ($franchaiseesData as $data) {
+
+                fputcsv($handle, [
+                    $data->id,
+                    $data->name,
+                    $data->email,
+                    $data->phone_number,
+                    $data->country,
+                    $data->preferred_location,
+                    $data->investment,
+                    $data->investment_brand,
+                    $data->joined_at,
+                ]);
+            }
+
+            fclose($handle);
+        };
+
+        return response()->stream($callback, Response::HTTP_OK, $headers);
+    }
+
     /**
      * Remove the specified resource from storage.
      */
