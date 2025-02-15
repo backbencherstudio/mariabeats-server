@@ -32,6 +32,7 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::get('/admin/franchaisor/{id}', [FranchaisorController::class, 'show']);
     Route::patch('/admin/franchaisor/{id}', [FranchaisorController::class, 'update']);
     Route::delete('/admin/franchaisor/{id}', [FranchaisorController::class, 'destroy']);
+    Route::get('/admin/franchaisees/export-data', [FranchaiseeController::class, 'exportData']);
     Route::get('/admin/franchaisees', [FranchaiseeController::class, 'index']);
     Route::post('/admin/franchaisee', [FranchaiseeController::class, 'store']);
     Route::get('/admin/franchaisee/{id}', [FranchaiseeController::class, 'show']);
