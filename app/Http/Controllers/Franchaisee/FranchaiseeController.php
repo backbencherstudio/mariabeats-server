@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Franchaisee;
 use App\Http\Controllers\Controller;
 use App\Models\Address\Country;
 use App\Models\Franchaisee\FranchaiseeRequest;
-use App\Models\Franchaisor\FranchaisorRequest;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Traits\CommonTrait;

@@ -4,7 +4,7 @@ namespace App\Models\Franchaisor;
 
 use Illuminate\Database\Eloquent\Model;
 
-class FranchaisorRequest extends Model
+class FranchisorRequest extends Model
 {
     protected $fillable = [
         'name',

@@ -6,24 +6,28 @@ use App\Http\Controllers\Controller;
 use App\Models\Address\Country;
 use App\Models\Franchaisor\Franchaisor;
 use App\Models\Franchaisor\FranchaisorCountries;
+use App\Models\Franchaisor\FranchisorRequest;
 use App\Models\Franchaisor\FranchaisorFile;
-use App\Models\Franchaisor\FranchaisorRequest;
 use App\Traits\CommonTrait;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
+use App\Lib\Data\SojebData;
 
 class FranchaisorController extends Controller
 {
     use CommonTrait;
-    
+
     /**
      * Display a listing of the resource.
      */
     public function index(Request $request)
     {
+        $brief_min_investment = $request->input('brief_min_investment');
+
+
         $query = Franchaisor::query();
 
         // Apply filters based on query parameters
@@ -53,6 +57,10 @@ class FranchaisorController extends Controller
 
         if ($request->has('brand_name')) {
             $query->where('brand_name', 'like', '%' . $request->query('brand_name') . '%');
+        }
+
+        if ($request->has('brief_min_investment')) {
+            $query->where('brief_min_investment', 'like', '%' . $brief_min_investment . '%');
         }
 
         $franchaisors = $query->get();
@@ -456,29 +464,40 @@ class FranchaisorController extends Controller
             "Expires"             => "0"
         ];
 
-        $fields = ['ID', 'Name', 'Company Name', 'Email', 'Industry', 'Based On', 'Interested Expansion', 'Timeframe', 'Date of Request', 'Ending Date']; // CSV headers
+        $callback = function () use ($franchisorsData) {
+            $handle = fopen('php://output', 'w');
 
-        $handle = fopen('php://output', 'w');
-        fputcsv($handle, $fields); // CSV headers
+            // CSV headers
+            $fields = ['ID', 'Name', 'Company Name', 'Email', 'Industry', 'Based On', 'Interested Expansion', 'Timeframe', 'Date of Request', 'Ending Date'];
+            fputcsv($handle, $fields);
 
-        foreach ($franchisorsData as $data) {
-            $expansion = FranchaisorCountries::where('franchaisor_id', $data->id)->get();
-            $expansion = $expansion->map(function ($item) {
-                return $item->country->name;
-            });
-            $expansion = $expansion->implode(', ');
-            fputcsv($handle, [$data->id, $data->name, $data->brand_name, $data->email, $data->industry, $data->address, $expansion, $data->timeframe, $data->joined_at, $data->end_at]);
-        }
+            foreach ($franchisorsData as $data) {
+                $expansion = FranchaisorCountries::with('country')
+                    ->where('franchaisor_id', $data->id)
+                    ->get();
+                $expansion = $expansion->map(function ($item) {
+                    return $item->country->name;
+                });
+                $expansion = $expansion->implode(', ');
 
-        fclose($handle);
+                fputcsv($handle, [
+                    $data->id,
+                    $data->name,
+                    $data->brand_name,
+                    $data->email,
+                    $data->industry,
+                    $data->address,
+                    $expansion,
+                    $data->timeframe,
+                    $data->joined_at,
+                    $data->end_at
+                ]);
+            }
 
-        return response()->stream(
-            function () use ($handle) {
-                fpassthru($handle);
-            },
-            Response::HTTP_OK,
-            $headers
-        );
+            fclose($handle);
+        };
+
+        return response()->stream($callback, Response::HTTP_OK, $headers);
     }
 
     /**
@@ -508,7 +527,7 @@ class FranchaisorController extends Controller
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $franchaisorRequest = new FranchaisorRequest();
+        $franchaisorRequest = new FranchisorRequest();
         $franchaisorRequest->name = $request->name;
         $franchaisorRequest->email = $request->email;
         $franchaisorRequest->phone_number = $request->phone_number;
@@ -523,7 +542,15 @@ class FranchaisorController extends Controller
 
     public function franchaisorRequests(Request $request)
     {
-        $franchaisorRequests = FranchaisorRequest::all();
+        $franchaisorRequests = FranchisorRequest::all();
         return $this->sendResponse($franchaisorRequests);
+    }
+
+    public function franchaisorRequestUpdate(Request $request, string $id)
+    {
+        $franchaisorRequest = FranchisorRequest::find($id);
+        $franchaisorRequest->status = $request->status;
+        $franchaisorRequest->save();
+        return $this->sendResponse(['franchaisorRequest' => $franchaisorRequest, 'message' => 'Franchaisor request updated successfully']);
     }
 }

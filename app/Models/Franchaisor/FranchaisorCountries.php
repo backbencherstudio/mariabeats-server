@@ -2,6 +2,7 @@
 
 namespace App\Models\Franchaisor;
 
+use App\Models\Address\Country;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
@@ -15,5 +16,10 @@ class FranchaisorCountries extends Model
     public function franchaisor()
     {
         return $this->hasMany(User::class, 'country', 'code');
+    }
+
+    public function country()
+    {
+        return $this->belongsTo(Country::class);
     }
 }
