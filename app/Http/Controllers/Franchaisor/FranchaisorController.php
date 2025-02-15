@@ -537,12 +537,16 @@ class FranchaisorController extends Controller
         $franchaisorRequest->preferred_location = $request->preferred_location;
         $franchaisorRequest->message = $request->message;
         $franchaisorRequest->save();
+
         return $this->sendResponse(['franchaisorRequest' => $franchaisorRequest, 'message' => 'Franchaisor request sent successfully']);
     }
 
     public function franchaisorRequests(Request $request)
     {
-        $franchaisorRequests = FranchisorRequest::all();
+        $franchaisorRequests = FranchisorRequest::query()
+            ->where('status', '!=', 'rejected')
+            ->get();
+
         return $this->sendResponse($franchaisorRequests);
     }
 

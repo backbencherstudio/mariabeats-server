@@ -183,7 +183,10 @@ class FranchaiseeController extends Controller
 
     public function franchaiseeRequests(Request $request)
     {
-        $franchaiseeRequests = FranchaiseeRequest::all();
+        $franchaiseeRequests = FranchaiseeRequest::query()
+            ->where('status', '!=', 'rejected')
+            ->get();
+
         return $this->sendResponse($franchaiseeRequests);
     }
 
