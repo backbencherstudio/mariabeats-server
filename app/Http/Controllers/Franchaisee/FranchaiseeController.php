@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Franchaisee;
 use App\Http\Controllers\Controller;
 use App\Models\Address\Country;
 use App\Models\Franchaisee\FranchaiseeRequest;
+use App\Models\Franchaisor\Franchaisor;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Traits\CommonTrait;
@@ -74,40 +75,57 @@ class FranchaiseeController extends Controller
      */
     public function store(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'phone_number' => 'required',
-            'country' => 'required',
-            'preferred_location' => 'required',
-            'investment' => 'required',
-            'timeframe' => 'required',
-            'joined_at' => 'required',
-            'end_at' => 'required',
-            'franchaisor_id' => 'required',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required',
+                'email' => 'required|email|unique:users',
+                'phone_number' => 'required',
+                'country' => 'required',
+                'preferred_location' => 'required',
+                'investment' => 'required',
+                'timeframe' => 'required',
+                'joined_at' => 'required',
+                'end_at' => 'required',
+                // 'franchaisor_id' => 'nullable',
+            ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors());
+            }
+
+            // check if franchaisee is exists
+            $franchaisee = User::where('email', $request->email)->first();
+            if ($franchaisee) {
+                return $this->sendError('Franchaisee already exists');
+            }
+
+            $franchaisee = new User();
+            $franchaisee->name = $request->name;
+            $franchaisee->email = $request->email;
+            $franchaisee->password = Hash::make('password');
+            $franchaisee->approved_at = now();
+            $franchaisee->phone_number = $request->phone_number;
+            $franchaisee->country = $request->country;
+            $franchaisee->preferred_location = $request->preferred_location;
+            $franchaisee->investment = $request->investment;
+            $franchaisee->timeframe = $request->timeframe;
+            $franchaisee->joined_at = $request->joined_at;
+            $franchaisee->end_at = $request->end_at;
+            // if ($request->has('franchaisor_id')) {
+            //     // check if franchaisor is exists
+            //     $franchaisor = Franchaisor::find($request->franchaisor_id);
+            //     if (!$franchaisor) {
+            //         return $this->sendError('Franchaisor not found');
+            //     }
+            //     $franchaisee->franchaisor_id = $request->franchaisor_id;
+            // }
+            $franchaisee->role = 'user';
+            $franchaisee->save();
+
+            return $this->sendResponse($franchaisee, 'Franchaisee created successfully');
+        } catch (\Throwable $th) {
+            return $this->sendError('Error creating franchaisee', $th->getMessage());
         }
-
-        $franchaisee = new User();
-        $franchaisee->name = $request->name;
-        $franchaisee->email = $request->email;
-        $franchaisee->password = Hash::make('password');
-        $franchaisee->approved_at = now();
-        $franchaisee->phone_number = $request->phone_number;
-        $franchaisee->country = $request->country;
-        $franchaisee->preferred_location = $request->preferred_location;
-        $franchaisee->investment = $request->investment;
-        $franchaisee->timeframe = $request->timeframe;
-        $franchaisee->joined_at = $request->joined_at;
-        $franchaisee->end_at = $request->end_at;
-        $franchaisee->franchaisor_id = $request->franchaisor_id;
-        $franchaisee->role = 'user';
-        $franchaisee->save();
-
-        return $this->sendResponse($franchaisee, 'Franchaisee created successfully');
     }
 
     /**
@@ -131,14 +149,18 @@ class FranchaiseeController extends Controller
      */
     public function update(string $id)
     {
-        if (Auth::user()->role != 'admin') {
-            return $this->sendError('Unauthorized', ['error' => 'Unauthorized']);
-        }
-        $franchaisee = User::find($id);
-        $franchaisee->approved_at = now();
-        $franchaisee->save();
+        try {
+            if (Auth::user()->role != 'admin') {
+                return $this->sendError('Unauthorized', ['error' => 'Unauthorized']);
+            }
+            $franchaisee = User::find($id);
+            $franchaisee->approved_at = now();
+            $franchaisee->save();
 
-        return $this->sendResponse('Franchaisee updated successfully');
+            return $this->sendResponse('Franchaisee updated successfully');
+        } catch (\Throwable $th) {
+            return $this->sendError('Error updating franchaisee', $th->getMessage());
+        }
     }
 
     public function exportData(Request $request)
