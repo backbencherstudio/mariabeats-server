@@ -11,15 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // for franchisee/ contact us
+        // for franchisee
         Schema::create('franchaisee_requests', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('company_name')->nullable();
             $table->string('email')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('country')->nullable();
-            $table->string('subject')->nullable();
+            $table->string('investment_amount')->nullable();
+            $table->string('timeframe')->nullable();
+            $table->string('preferred_location')->nullable();
             $table->text('message')->nullable();
             $table->string('status')->nullable()->default('pending'); // pending, approved, rejected
             $table->timestamps();
