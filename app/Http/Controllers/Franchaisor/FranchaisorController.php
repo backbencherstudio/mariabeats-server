@@ -515,12 +515,11 @@ class FranchaisorController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
+            'company_name' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255',
             'phone_number' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
-            'investment_amount' => 'nullable|numeric',
-            'timeframe' => 'nullable|string|max:255',
-            'preferred_location' => 'nullable|string|max:255',
+            'subject' => 'nullable|string|max:255',
             'message' => 'nullable|string|max:255',
         ]);
 
@@ -530,12 +529,11 @@ class FranchaisorController extends Controller
 
         $franchaisorRequest = new FranchaisorRequest();
         $franchaisorRequest->name = $request->name;
+        $franchaisorRequest->company_name = $request->company_name;
         $franchaisorRequest->email = $request->email;
         $franchaisorRequest->phone_number = $request->phone_number;
         $franchaisorRequest->country = $request->country;
-        $franchaisorRequest->investment_amount = $request->investment_amount;
-        $franchaisorRequest->timeframe = $request->timeframe;
-        $franchaisorRequest->preferred_location = $request->preferred_location;
+        $franchaisorRequest->subject = $request->subject;
         $franchaisorRequest->message = $request->message;
         $franchaisorRequest->save();
 
@@ -550,6 +548,18 @@ class FranchaisorController extends Controller
 
         return $this->sendResponse($franchaisorRequests);
     }
+
+    public function showFranchaisorRequest(Request $request, string $id)
+    {
+        $franchaisorRequest = FranchaisorRequest::find($id);
+
+        if (!$franchaisorRequest) {
+            return $this->sendError('Franchaisor request not found');
+        }
+
+        return $this->sendResponse($franchaisorRequest);
+    }
+
 
     public function franchaisorRequestUpdate(Request $request, string $id)
     {
