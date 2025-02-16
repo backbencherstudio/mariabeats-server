@@ -20,6 +20,7 @@ Route::post('/franchaisor-request', [FranchaisorController::class, 'franchaisorR
 Route::get('/franchaisors', [FranchaisorController::class, 'index']);
 Route::get('/franchaisor/{id}', [FranchaisorController::class, 'show']);
 Route::get('/countries', [CountryController::class, 'index']);
+Route::get('/featured', [FeaturedController::class, 'index']);
 
 
 Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
@@ -43,5 +44,5 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::get('/admin/franchaisor-requests', [FranchaisorController::class, 'franchaisorRequests']);
     Route::patch('/admin/franchaisee-request/{id}', [FranchaiseeController::class, 'franchaiseeRequestUpdate']);
     Route::patch('/admin/franchaisor-request/{id}', [FranchaisorController::class, 'franchaisorRequestUpdate']);
+    Route::resource('/admin/featured', FeaturedController::class);
 });
-Route::resource('/admin/featured', FeaturedController::class);
