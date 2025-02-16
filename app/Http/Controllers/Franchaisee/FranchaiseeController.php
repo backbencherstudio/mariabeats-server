@@ -214,34 +214,38 @@ class FranchaiseeController extends Controller
         return $this->sendResponse($franchaisee, 'Franchaisee deleted successfully');
     }
 
-    public function franchaiseeRequest(Request $request)
+    public function doFranchaiseeRequest(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'phone_number' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
-            'preferred_location' => 'required|string|max:255',
-            'investment_amount' => 'required|numeric',
-            'timeframe' => 'required|string|max:255',
-            'message' => 'required|string|max:255',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'nullable|string|max:255',
+                'email' => 'nullable|string|email|max:255',
+                'phone_number' => 'nullable|string|max:255',
+                'country' => 'nullable|string|max:255',
+                'preferred_location' => 'nullable|string|max:255',
+                'investment_amount' => 'nullable|numeric',
+                'timeframe' => 'nullable|string|max:255',
+                'message' => 'nullable|string|max:255',
+            ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
+            if ($validator->fails()) {
+                return $this->sendError('Validation Error.', $validator->errors());
+            }
+
+            $franchaiseeRequest = new FranchaiseeRequest();
+            $franchaiseeRequest->name = $request->name;
+            $franchaiseeRequest->email = $request->email;
+            $franchaiseeRequest->phone_number = $request->phone_number;
+            $franchaiseeRequest->country = $request->country;
+            $franchaiseeRequest->preferred_location = $request->preferred_location;
+            $franchaiseeRequest->investment_amount = $request->investment_amount;
+            $franchaiseeRequest->timeframe = $request->timeframe;
+            $franchaiseeRequest->message = $request->message;
+            $franchaiseeRequest->save();
+            return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request sent successfully']);
+        } catch (\Throwable $th) {
+            return $this->sendError('Error sending franchaisee request', $th->getMessage());
         }
-
-        $franchaiseeRequest = new FranchaiseeRequest();
-        $franchaiseeRequest->name = $request->name;
-        $franchaiseeRequest->email = $request->email;
-        $franchaiseeRequest->phone_number = $request->phone_number;
-        $franchaiseeRequest->country = $request->country;
-        $franchaiseeRequest->preferred_location = $request->preferred_location;
-        $franchaiseeRequest->investment_amount = $request->investment_amount;
-        $franchaiseeRequest->timeframe = $request->timeframe;
-        $franchaiseeRequest->message = $request->message;
-        $franchaiseeRequest->save();
-        return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request sent successfully']);
     }
 
     public function franchaiseeRequests(Request $request)

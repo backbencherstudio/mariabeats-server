@@ -15,7 +15,7 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/franchaisee-request', [FranchaiseeController::class, 'franchaiseeRequest']);
+Route::post('/franchaisee-request', [FranchaiseeController::class, 'doFranchaiseeRequest']);
 Route::post('/franchaisor-request', [FranchaisorController::class, 'franchaisorRequest']);
 Route::get('/franchaisors', [FranchaisorController::class, 'index']);
 Route::get('/franchaisor/{id}', [FranchaisorController::class, 'show']);

@@ -23,6 +23,7 @@ return new class extends Migration
             $table->string('industry')->nullable();
             $table->dateTime('joined_at')->nullable();
             $table->dateTime('end_at')->nullable();
+            $table->string('timeframe')->nullable();
             // in brief
             $table->string('brief_heading')->nullable();
             $table->text('brief_description')->nullable();

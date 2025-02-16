@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         // for franchaisor
-        Schema::create('franchisor_requests', function (Blueprint $table) {
+        Schema::create('franchaisor_requests', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
             $table->string('email')->nullable();
