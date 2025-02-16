@@ -15,7 +15,7 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         //
-        $middleware->append(OwnCors::class);
+        // $middleware->append(OwnCors::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

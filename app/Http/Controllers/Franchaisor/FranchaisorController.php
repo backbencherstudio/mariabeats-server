@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Address\Country;
 use App\Models\Franchaisor\Franchaisor;
 use App\Models\Franchaisor\FranchaisorCountries;
-use App\Models\Franchaisor\FranchisorRequest;
+use App\Models\Franchaisor\FranchaisorRequest;
 use App\Models\Franchaisor\FranchaisorFile;
 use App\Traits\CommonTrait;
 use Carbon\Carbon;
@@ -514,21 +514,21 @@ class FranchaisorController extends Controller
     public function franchaisorRequest(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255',
-            'phone_number' => 'required|string|max:255',
-            'country' => 'required|string|max:255',
-            'investment_amount' => 'required|numeric',
-            'timeframe' => 'required|string|max:255',
-            'preferred_location' => 'required|string|max:255',
-            'message' => 'required|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'email' => 'nullable|string|email|max:255',
+            'phone_number' => 'nullable|string|max:255',
+            'country' => 'nullable|string|max:255',
+            'investment_amount' => 'nullable|numeric',
+            'timeframe' => 'nullable|string|max:255',
+            'preferred_location' => 'nullable|string|max:255',
+            'message' => 'nullable|string|max:255',
         ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
         }
 
-        $franchaisorRequest = new FranchisorRequest();
+        $franchaisorRequest = new FranchaisorRequest();
         $franchaisorRequest->name = $request->name;
         $franchaisorRequest->email = $request->email;
         $franchaisorRequest->phone_number = $request->phone_number;
@@ -544,7 +544,7 @@ class FranchaisorController extends Controller
 
     public function franchaisorRequests(Request $request)
     {
-        $franchaisorRequests = FranchisorRequest::query()
+        $franchaisorRequests = FranchaisorRequest::query()
             ->where('status', '!=', 'rejected')
             ->get();
 
@@ -553,7 +553,7 @@ class FranchaisorController extends Controller
 
     public function franchaisorRequestUpdate(Request $request, string $id)
     {
-        $franchaisorRequest = FranchisorRequest::find($id);
+        $franchaisorRequest = FranchaisorRequest::find($id);
         $franchaisorRequest->status = $request->status;
         $franchaisorRequest->save();
         return $this->sendResponse(['franchaisorRequest' => $franchaisorRequest, 'message' => 'Franchaisor request updated successfully']);
