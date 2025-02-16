@@ -86,6 +86,15 @@ class FeaturedController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try {
+            $featured = Featured::find($id);
+            if (!$featured) {
+                return $this->sendError('Featured not found');
+            }
+            $featured->delete();
+            return $this->sendResponse(['featured' => $featured, 'message' => 'Featured deleted successfully']);
+        } catch (\Throwable $th) {
+            return $this->sendError($th->getMessage());
+        }
     }
 }
