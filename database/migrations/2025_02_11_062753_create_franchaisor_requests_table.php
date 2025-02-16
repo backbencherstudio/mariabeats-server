@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('franchaisor_requests', function (Blueprint $table) {
             $table->id();
             $table->string('name')->nullable();
-            $table->string('company_name')->nullable();
+            $table->string('brand_name')->nullable();
             $table->string('email')->nullable();
             $table->string('phone_number')->nullable();
             $table->string('country')->nullable();

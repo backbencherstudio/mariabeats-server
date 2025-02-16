@@ -515,7 +515,7 @@ class FranchaisorController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'nullable|string|max:255',
-            'company_name' => 'nullable|string|max:255',
+            'brand_name' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255',
             'phone_number' => 'nullable|string|max:255',
             'country' => 'nullable|string|max:255',
@@ -529,7 +529,7 @@ class FranchaisorController extends Controller
 
         $franchaisorRequest = new FranchaisorRequest();
         $franchaisorRequest->name = $request->name;
-        $franchaisorRequest->company_name = $request->company_name;
+        $franchaisorRequest->brand_name = $request->brand_name;
         $franchaisorRequest->email = $request->email;
         $franchaisorRequest->phone_number = $request->phone_number;
         $franchaisorRequest->country = $request->country;
