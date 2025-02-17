@@ -7,6 +7,7 @@ use App\Models\Featured\Featured;
 use App\Models\Franchaisor\Franchaisor;
 use Illuminate\Http\Request;
 use App\Traits\CommonTrait;
+use Illuminate\Support\Facades\Storage;
 
 class FeaturedController extends Controller
 {
@@ -18,6 +19,12 @@ class FeaturedController extends Controller
     {
         try {
             $featured = Featured::with('franchaisor')->get();
+            $featured = $featured->map(function ($item) {
+                if ($item->franchaisor->logo_path && $item->franchaisor->logo_path != null) {
+                    $item->franchaisor->logo_path = Storage::url($item->franchaisor->logo_path);
+                }
+                return $item;
+            });
 
             return $this->sendResponse(['featured' => $featured, 'message' => 'Featured fetched successfully']);
         } catch (\Throwable $th) {

@@ -112,7 +112,7 @@ class FranchaisorController extends Controller
                 });
                 $details2_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'details2')->get();
                 $franchaisor->details2_images = $details2_images->map(function ($file) {
-                    if ($file->file_path && $file->file_path != null) {
+                    if ($file->file_path) {
                         return [
                             'id' => $file->id,
                             'file_path' => Storage::url($file->file_path),
