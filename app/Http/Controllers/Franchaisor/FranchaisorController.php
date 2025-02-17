@@ -25,7 +25,8 @@ class FranchaisorController extends Controller
      */
     public function index(Request $request)
     {
-        $brief_min_investment = $request->input('brief_min_investment');
+        try {
+            $brief_min_investment = $request->input('brief_min_investment');
 
 
         $query = Franchaisor::query();
@@ -66,18 +67,59 @@ class FranchaisorController extends Controller
         $franchaisors = $query->get();
 
         foreach ($franchaisors as $franchaisor) {
-            $franchaisor->cover_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'cover')->get();
-            $franchaisor->brief_gallary_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'brief')->get();
-            $franchaisor->brief_video = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'brief')->first();
-            $franchaisor->details1_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'details1')->get();
-            $franchaisor->details2_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'details2')->get();
-
+            $franchaisor->logo_path = Storage::url($franchaisor->logo_path);
+            $cover_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'cover')->get();
+            $franchaisor->cover_images = $cover_images->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'file_path' => Storage::url($file->file_path),
+                    'file_type' => $file->file_type,
+                    'type' => $file->type,
+                ];
+            });
+            $brief_gallary_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'brief')->get();
+            $franchaisor->brief_gallary_images = $brief_gallary_images->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'file_path' => Storage::url($file->file_path),
+                    'file_type' => $file->file_type,
+                    'type' => $file->type,
+                ];
+            });
+            // $brief_video = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'brief')->first();
+            // $franchaisor->brief_video = [
+            //     'id' => $brief_video->id,
+            //     'file_path' => Storage::url($brief_video->file_path),
+            //     'file_type' => $brief_video->file_type,
+            //     'type' => $brief_video->type,
+            // ];
+            $details1_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'details1')->get();
+            $franchaisor->details1_images = $details1_images->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'file_path' => Storage::url($file->file_path),
+                    'file_type' => $file->file_type,
+                    'type' => $file->type,
+                ];
+            });
+            $details2_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'details2')->get();
+            $franchaisor->details2_images = $details2_images->map(function ($file) {
+                return [
+                    'id' => $file->id ,
+                    'file_path' => Storage::url($file->file_path),
+                    'file_type' => $file->file_type,
+                    'type' => $file->type,
+                ];
+            });
             $interested_countries = FranchaisorCountries::where('franchaisor_id', $franchaisor->id)->pluck('country_id');
             $franchaisor->interested_countries = Country::whereIn('id', $interested_countries)->get();
             $franchaisor->location = Country::where('id', (int) $franchaisor->address)->first();
         }
 
-        return $this->sendResponse($franchaisors);
+            return $this->sendResponse($franchaisors);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 
 
@@ -164,7 +206,7 @@ class FranchaisorController extends Controller
         if ($request->hasFile('logo')) {
             $logo = $request->file('logo');
             $path = Storage::put('franchaisors', $logo);
-            $franchaisor->logo_path = "storage/$path";
+            $franchaisor->logo_path = $path;
             $franchaisor->save();
         }
 
@@ -174,7 +216,7 @@ class FranchaisorController extends Controller
             foreach ($coverImages as $image) {
                 $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
-                $franchaisorFile->file_path = "storage/$path";
+                $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $image->getClientOriginalExtension();
                 $franchaisorFile->type = 'cover';
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
@@ -188,7 +230,7 @@ class FranchaisorController extends Controller
             foreach ($briefGallaryImages as $image) {
                 $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
-                $franchaisorFile->file_path = "storage/$path";
+                $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $image->getClientOriginalExtension();
                 $franchaisorFile->type = 'brief';
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
@@ -201,7 +243,7 @@ class FranchaisorController extends Controller
             $briefVideo = $request->file('brief_video');
             $path = Storage::put('franchaisors', $briefVideo);
             $franchaisorFile = new FranchaisorFile();
-            $franchaisorFile->file_path = "storage/$path";
+            $franchaisorFile->file_path = $path;
             $franchaisorFile->file_type = $briefVideo->getClientOriginalExtension();
             $franchaisorFile->type = 'brief';
             $franchaisorFile->franchaisor_id = $franchaisor->id;
@@ -214,7 +256,7 @@ class FranchaisorController extends Controller
             foreach ($details1Images as $image) {
                 $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
-                $franchaisorFile->file_path = "storage/$path";
+                $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $image->getClientOriginalExtension();
                 $franchaisorFile->type = 'details1';
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
@@ -228,7 +270,7 @@ class FranchaisorController extends Controller
             foreach ($details2Images as $image) {
                 $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
-                $franchaisorFile->file_path = "storage/$path";
+                $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $image->getClientOriginalExtension();
                 $franchaisorFile->type = 'details2';
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
@@ -245,16 +287,50 @@ class FranchaisorController extends Controller
      */
     public function show(string $id)
     {
-        $franchaisor = Franchaisor::find($id);
-        // $franchaisor->files = FranchaisorFile::where('franchaisor_id', $id)->get();
-        $franchaisor->cover_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'cover')->get();
-        $franchaisor->brief_gallary_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'brief')->get();
-        $franchaisor->brief_video = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'brief')->first();
-        $franchaisor->details1_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'details1')->get();
-        $franchaisor->details2_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'details2')->get();
-        $franchaisor->interested_countries = FranchaisorCountries::where('franchaisor_id', $id)->get();
-        $franchaisor->location = Country::where('id', (int) $franchaisor->address)->first();
-        return $this->sendResponse($franchaisor);
+        try {
+            $franchaisor = Franchaisor::find($id);
+            // $franchaisor->files = FranchaisorFile::where('franchaisor_id', $id)->get();
+            $cover_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'cover')->get();
+            $franchaisor->logo_path = Storage::url($franchaisor->logo_path);
+            $franchaisor->cover_images = $cover_images->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'file_path' => Storage::url($file->file_path),
+                    'file_type' => $file->file_type,
+                ];
+            });
+            $brief_gallary_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'brief')->get();
+            $franchaisor->brief_gallary_images = $brief_gallary_images->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'file_path' => Storage::url($file->file_path),
+                    'file_type' => $file->file_type,
+                ];
+            });
+            $details1_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'details1')->get();
+            $franchaisor->details1_images = $details1_images->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'file_path' => Storage::url($file->file_path),
+                    'file_type' => $file->file_type,
+                    'type' => $file->type,
+                ];
+            });
+            $details2_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'details2')->get();
+            $franchaisor->details2_images = $details2_images->map(function ($file) {
+                return [
+                    'id' => $file->id,
+                    'file_path' => Storage::url($file->file_path),
+                    'file_type' => $file->file_type,
+                    'type' => $file->type,
+                ];
+            });
+            $franchaisor->interested_countries = FranchaisorCountries::where('franchaisor_id', $id)->get();
+            $franchaisor->location = Country::where('id', (int) $franchaisor->address)->first();
+            return $this->sendResponse($franchaisor);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 
     /**
@@ -270,35 +346,36 @@ class FranchaisorController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validator = Validator::make($request->all(), [
-            'brand_name' => 'string|max:255',
-            'name' => 'string|max:255',
-            'position' => 'string|max:255',
-            'email' => 'string|email|max:255|unique:users',
-            'phone_number' => 'string|max:255',
-            'location' => 'string|max:255',
-            'interested_countries' => 'required',
-            'industry' => 'string|max:255',
-            'timeframe' => 'string|max:255',
-            'joined_at' => 'date',
-            'end_at' => 'date',
-            // 'cover_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            // 'logo' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'brief_heading' => 'string|max:255',
-            'brief_description' => 'string|max:255',
-            'brief_country_of_region' => 'string|max:255',
-            'brief_available' => 'string|max:255',
-            'brief_business_type' => 'string|max:255',
-            'brief_min_investment' => 'numeric',
-            // 'details1_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'details1_heading' => 'string|max:255',
-            'details1_description' => 'string|max:255',
-            // 'details2_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'details2_heading' => 'string|max:255',
-            'details2_description' => 'string|max:255',
-            // 'brief_gallary_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            // 'brief_video' => 'file|mimes:mp4,mov,avi,wmv,flv,mpeg,mpg,m4v,3gp,3g2,mj2,webm,mkv|max:2048',
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'brand_name' => 'string|max:255',
+                'name' => 'string|max:255',
+                'position' => 'string|max:255',
+                'email' => 'string|email|max:255|unique:users',
+                'phone_number' => 'string|max:255',
+                'location' => 'string|max:255',
+                // 'interested_countries' => 'required',
+                'industry' => 'string|max:255',
+                'timeframe' => 'string|max:255',
+                'joined_at' => 'date',
+                'end_at' => 'date',
+                // 'cover_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                // 'logo' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'brief_heading' => 'string|max:255',
+                'brief_description' => 'string|max:255',
+                'brief_country_of_region' => 'string|max:255',
+                'brief_available' => 'string|max:255',
+                'brief_business_type' => 'string|max:255',
+                'brief_min_investment' => 'numeric',
+                // 'details1_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'details1_heading' => 'string|max:255',
+                'details1_description' => 'string|max:255',
+                // 'details2_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                'details2_heading' => 'string|max:255',
+                'details2_description' => 'string|max:255',
+                // 'brief_gallary_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                // 'brief_video' => 'file|mimes:mp4,mov,avi,wmv,flv,mpeg,mpg,m4v,3gp,3g2,mj2,webm,mkv|max:2048',
+            ]);
 
         if ($validator->fails()) {
             return $this->sendError('Validation Error.', $validator->errors());
@@ -377,7 +454,7 @@ class FranchaisorController extends Controller
         if ($request->hasFile('logo')) {
             $logo = $request->file('logo');
             $path = Storage::put('franchaisors', $logo);
-            $franchaisor->logo_path = "storage/$path";
+            $franchaisor->logo_path = $path;
             $franchaisor->save();
         }
 
@@ -387,7 +464,7 @@ class FranchaisorController extends Controller
             foreach ($coverImages as $image) {
                 $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
-                $franchaisorFile->file_path = "storage/$path";
+                $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $image->getClientOriginalExtension();
                 $franchaisorFile->type = 'cover';
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
@@ -401,7 +478,7 @@ class FranchaisorController extends Controller
             foreach ($briefGallaryImages as $image) {
                 $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
-                $franchaisorFile->file_path = "storage/$path";
+                $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $image->getClientOriginalExtension();
                 $franchaisorFile->type = 'brief';
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
@@ -414,7 +491,7 @@ class FranchaisorController extends Controller
             $briefVideo = $request->file('brief_video');
             $path = Storage::put('franchaisors', $briefVideo);
             $franchaisorFile = new FranchaisorFile();
-            $franchaisorFile->file_path = "storage/$path";
+            $franchaisorFile->file_path = $path;
             $franchaisorFile->file_type = $briefVideo->getClientOriginalExtension();
             $franchaisorFile->type = 'brief';
             $franchaisorFile->franchaisor_id = $franchaisor->id;
@@ -427,7 +504,7 @@ class FranchaisorController extends Controller
             foreach ($details1Images as $image) {
                 $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
-                $franchaisorFile->file_path = "storage/$path";
+                $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $image->getClientOriginalExtension();
                 $franchaisorFile->type = 'details1';
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
@@ -441,14 +518,17 @@ class FranchaisorController extends Controller
             foreach ($details2Images as $image) {
                 $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
-                $franchaisorFile->file_path = "storage/$path";
+                $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $image->getClientOriginalExtension();
                 $franchaisorFile->type = 'details2';
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
                 $franchaisorFile->save();
             }
         }
-        return $this->sendResponse(['franchaisor' => $franchaisor, 'message' => 'Franchaisor updated successfully']);
+            return $this->sendResponse(['franchaisor' => $franchaisor, 'message' => 'Franchaisor updated successfully']);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 
     public function exportData(Request $request)
@@ -505,16 +585,21 @@ class FranchaisorController extends Controller
      */
     public function destroy(string $id)
     {
-        $franchaisor = Franchaisor::find($id);
-        $franchaisor->delete();
-        return $this->sendResponse(['message' => 'Franchaisor deleted successfully']);
+        try {
+            $franchaisor = Franchaisor::find($id);
+            $franchaisor->delete();
+            return $this->sendResponse(['message' => 'Franchaisor deleted successfully']);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 
     // contact us
     public function franchaisorRequest(Request $request)
     {
-        $validator = Validator::make($request->all(), [
-            'name' => 'nullable|string|max:255',
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'nullable|string|max:255',
             'brand_name' => 'nullable|string|max:255',
             'email' => 'nullable|string|email|max:255',
             'phone_number' => 'nullable|string|max:255',
@@ -537,35 +622,64 @@ class FranchaisorController extends Controller
         $franchaisorRequest->message = $request->message;
         $franchaisorRequest->save();
 
-        return $this->sendResponse(['franchaisorRequest' => $franchaisorRequest, 'message' => 'Franchaisor request sent successfully']);
+            return $this->sendResponse(['franchaisorRequest' => $franchaisorRequest, 'message' => 'Franchaisor request sent successfully']);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 
     public function franchaisorRequests(Request $request)
     {
-        $franchaisorRequests = FranchaisorRequest::query()
-            ->where('status', '!=', 'rejected')
-            ->get();
+        try {
+            $franchaisorRequests = FranchaisorRequest::query()
+                ->where('status', '!=', 'rejected')
+                ->get();
+            
+            
 
-        return $this->sendResponse($franchaisorRequests);
+            return $this->sendResponse($franchaisorRequests);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 
     public function showFranchaisorRequest(Request $request, string $id)
     {
-        $franchaisorRequest = FranchaisorRequest::find($id);
+        try {
+            $franchaisorRequest = FranchaisorRequest::find($id);
 
         if (!$franchaisorRequest) {
             return $this->sendError('Franchaisor request not found');
         }
 
-        return $this->sendResponse($franchaisorRequest);
+            return $this->sendResponse($franchaisorRequest);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 
 
     public function franchaisorRequestUpdate(Request $request, string $id)
     {
-        $franchaisorRequest = FranchaisorRequest::find($id);
-        $franchaisorRequest->status = $request->status;
-        $franchaisorRequest->save();
-        return $this->sendResponse(['franchaisorRequest' => $franchaisorRequest, 'message' => 'Franchaisor request updated successfully']);
+        try {
+            $franchaisorRequest = FranchaisorRequest::find($id);
+            $franchaisorRequest->status = $request->status;
+            $franchaisorRequest->save();
+            return $this->sendResponse(['franchaisorRequest' => $franchaisorRequest, 'message' => 'Franchaisor request updated successfully']);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
+
+    public function franchaisorRequestDelete(Request $request, string $id)
+    {
+        try {
+            $franchaisorRequest = FranchaisorRequest::find($id);
+            $franchaisorRequest->delete();
+            return $this->sendResponse(['franchaisorRequest' => $franchaisorRequest, 'message' => 'Franchaisor request deleted successfully']);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
+    }
+    
 }

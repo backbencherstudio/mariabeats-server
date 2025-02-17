@@ -14,4 +14,5 @@ class FranchaisorFile extends Model
     {
         return $this->belongsTo(Franchaisor::class, 'franchaisor_id');
     }
+    
 }

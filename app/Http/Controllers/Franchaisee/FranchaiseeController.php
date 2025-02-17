@@ -111,14 +111,14 @@ class FranchaiseeController extends Controller
             $franchaisee->timeframe = $request->timeframe;
             $franchaisee->joined_at = $request->joined_at;
             $franchaisee->end_at = $request->end_at;
-            // if ($request->has('franchaisor_id')) {
-            //     // check if franchaisor is exists
-            //     $franchaisor = Franchaisor::find($request->franchaisor_id);
-            //     if (!$franchaisor) {
-            //         return $this->sendError('Franchaisor not found');
-            //     }
-            //     $franchaisee->franchaisor_id = $request->franchaisor_id;
-            // }
+            if ($request->has('franchaisor_id')) {
+                // check if franchaisor is exists
+                $franchaisor = Franchaisor::find($request->franchaisor_id);
+                if (!$franchaisor) {
+                    return $this->sendError('Franchaisor not found');
+                }
+                $franchaisee->franchaisor_id = $request->franchaisor_id;
+            }
             $franchaisee->role = 'user';
             $franchaisee->save();
 
@@ -133,7 +133,12 @@ class FranchaiseeController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $franchaisee = User::find($id);
+        if (!$franchaisee) {
+            return $this->sendError('Franchaisee not found');
+        }
+        $franchaisee->location = Country::where('id', (int) $franchaisee->country)->first();
+        return $this->sendResponse($franchaisee);
     }
 
     /**
@@ -147,14 +152,46 @@ class FranchaiseeController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(string $id)
+    public function update(Request $request, string $id)
     {
         try {
             if (Auth::user()->role != 'admin') {
                 return $this->sendError('Unauthorized', ['error' => 'Unauthorized']);
             }
             $franchaisee = User::find($id);
-            $franchaisee->approved_at = now();
+            if (!$franchaisee) {
+                return $this->sendError('Franchaisee not found');
+            }
+            if ($request->has('name')) {
+                $franchaisee->name = $request->name;
+            }
+            if ($request->has('email')) {
+                $franchaisee->email = $request->email;
+            }
+            if ($request->has('phone_number')) {
+                $franchaisee->phone_number = $request->phone_number;
+            }
+            if ($request->has('country')) {
+                $franchaisee->country = $request->country;
+            }
+            if ($request->has('preferred_location')) {
+                $franchaisee->preferred_location = $request->preferred_location;
+            }
+            if ($request->has('timeframe')) {
+                $franchaisee->timeframe = $request->timeframe;
+            }
+            if ($request->has('approved_at')) {
+                $franchaisee->approved_at = now();
+            }
+            if ($request->has('joined_at')) {
+                $franchaisee->joined_at = $request->joined_at;
+            }
+            if ($request->has('end_at')) {
+                $franchaisee->end_at = $request->end_at;
+            }
+            if ($request->has('status')) {
+                $franchaisee->status = $request->status;
+            }
             $franchaisee->save();
 
             return $this->sendResponse('Franchaisee updated successfully');
@@ -209,9 +246,13 @@ class FranchaiseeController extends Controller
      */
     public function destroy(string $id)
     {
-        $franchaisee = User::find($id);
-        $franchaisee->delete();
-        return $this->sendResponse($franchaisee, 'Franchaisee deleted successfully');
+        try {
+            $franchaisee = User::find($id);
+            $franchaisee->delete();
+            return $this->sendResponse($franchaisee, 'Franchaisee deleted successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 
     public function doFranchaiseeRequest(Request $request)
@@ -263,5 +304,16 @@ class FranchaiseeController extends Controller
         $franchaiseeRequest->status = $request->status;
         $franchaiseeRequest->save();
         return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request updated successfully']);
+    }
+
+    public function franchaiseeRequestDelete(Request $request, string $id)
+    {
+        try {
+            $franchaiseeRequest = FranchaiseeRequest::find($id);
+            $franchaiseeRequest->delete();
+            return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request deleted successfully']);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 }

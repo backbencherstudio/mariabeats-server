@@ -31,6 +31,8 @@ class User extends Authenticatable
         'timeframe',
         'joined_at',
         'end_at',
+        'password_reset_otp',
+        'password_reset_otp_expiry'
     ];
 
     /**
