@@ -92,7 +92,7 @@ class FranchaisorController extends Controller
                         ];
                     }
                 });
-                $brief_video = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'brief')->first();
+                $brief_video = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'brief_video')->first();
                 if ($brief_video && $brief_video->file_path && $brief_video->file_path != null) {
                     $franchaisor->brief_video = [
                         'id' => $brief_video->id,
@@ -239,9 +239,9 @@ class FranchaisorController extends Controller
         }
 
         //create brief gallary images
-        if ($request->hasFile('brief_gallary_images')) {
-            $briefGallaryImages = $request->file('brief_gallary_images');
-            foreach ($briefGallaryImages as $image) {
+        if ($request->hasFile('brief_gallery_images')) {
+            $briefGalleryImages = $request->file('brief_gallery_images');
+            foreach ($briefGalleryImages as $image) {
                 $path = Storage::put('franchaisors', $image);
                 $franchaisorFile = new FranchaisorFile();
                 $franchaisorFile->file_path = "$path";
@@ -259,7 +259,7 @@ class FranchaisorController extends Controller
             $franchaisorFile = new FranchaisorFile();
             $franchaisorFile->file_path = "$path";
             $franchaisorFile->file_type = $briefVideo->getClientOriginalExtension();
-            $franchaisorFile->type = 'brief';
+            $franchaisorFile->type = 'brief_video';
             $franchaisorFile->franchaisor_id = $franchaisor->id;
             $franchaisorFile->save();
         }
@@ -276,7 +276,7 @@ class FranchaisorController extends Controller
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
                 $franchaisorFile->save();
             }
-        }   
+        }
 
         //create details2 images
         if ($request->hasFile('details2_images')) {
@@ -321,6 +321,13 @@ class FranchaisorController extends Controller
                     'file_type' => $file->file_type,
                 ];
             });
+            $brief_video = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'brief_video')->first();
+            // pass as same files and brief_video is only one file
+            $franchaisor->brief_video = [
+                'id' => $brief_video->id,
+                'file_path' => Storage::url($brief_video->file_path),
+                'file_type' => $brief_video->file_type,
+            ];
             $details1_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'details1')->get();
             $franchaisor->details1_images = $details1_images->map(function ($file) {
                 return [
@@ -464,6 +471,7 @@ class FranchaisorController extends Controller
                 }
             }
 
+
             //update logo
             if ($request->hasFile('logo')) {
                 $logo = $request->file('logo');
@@ -472,24 +480,57 @@ class FranchaisorController extends Controller
                 $franchaisor->save();
             }
 
-            //update cover images
+            // Step 1: Upload new files and collect their IDs
+            $uploadedImageIds = [];
+
             if ($request->hasFile('cover_images')) {
                 $coverImages = $request->file('cover_images');
+
                 foreach ($coverImages as $image) {
                     $path = Storage::put('franchaisors', $image);
+
                     $franchaisorFile = new FranchaisorFile();
                     $franchaisorFile->file_path = $path;
                     $franchaisorFile->file_type = $image->getClientOriginalExtension();
                     $franchaisorFile->type = 'cover';
                     $franchaisorFile->franchaisor_id = $franchaisor->id;
                     $franchaisorFile->save();
+
+                    // Store the newly uploaded file's ID
+                    $uploadedImageIds[] = $franchaisorFile->id;
+                }
+            }
+
+            // Step 2: Process existing cover_images from payload
+            $cleanImageIds = [];
+
+            if ($request->input('cover_images')) {
+                // convert this string [1,2,3] to array
+                if (is_array($request->input('cover_images'))) {
+                    $coverImages = $request->input('cover_images');
+                } else {
+                    $coverImages = json_decode($request->input('cover_images'));
+                }
+
+                // Step 3: Fetch existing files
+                $existingFiles = FranchaisorFile::where('franchaisor_id', $id)
+                    ->where('type', 'cover')
+                    ->get();
+
+                // Step 4: Delete only files that are **not in the cleanImageIds or uploadedImageIds**
+                foreach ($existingFiles as $file) {
+                    if (!in_array((int) $file->id, $coverImages) && !in_array((int) $file->id, $uploadedImageIds)) {
+                        Storage::delete($file->file_path);
+                        $file->delete();
+                    }
                 }
             }
 
             //update brief gallary images
-            if ($request->hasFile('brief_gallary_images')) {
-                $briefGallaryImages = $request->file('brief_gallary_images');
-                foreach ($briefGallaryImages as $image) {
+            $uploadedBriefGalleryImageIds = [];
+            if ($request->hasFile('brief_gallery_images')) {
+                $briefGalleryImages = $request->file('brief_gallery_images');
+                foreach ($briefGalleryImages as $image) {
                     $path = Storage::put('franchaisors', $image);
                     $franchaisorFile = new FranchaisorFile();
                     $franchaisorFile->file_path = $path;
@@ -498,21 +539,51 @@ class FranchaisorController extends Controller
                     $franchaisorFile->franchaisor_id = $franchaisor->id;
                     $franchaisorFile->save();
                 }
+                $uploadedBriefGalleryImageIds[] = $franchaisorFile->id;
+            } 
+            
+            $cleanImageIds = [];
+            if ($request->input('brief_gallery_images')) {
+                if (is_array($request->input('brief_gallery_images'))) {
+                    $briefGalleryImages = $request->input('brief_gallery_images');
+                } else {
+                    $briefGalleryImages = json_decode($request->input('brief_gallery_images'));
+                }
+
+                $existingBriefGalleryFiles = FranchaisorFile::where('franchaisor_id', $id)
+                    ->where('type', 'brief')
+                    ->get();
+
+                foreach ($existingBriefGalleryFiles as $file) {
+                    if (!in_array((int) $file->id, $briefGalleryImages) && !in_array((int) $file->id, $uploadedBriefGalleryImageIds)) {
+                        Storage::delete($file->file_path);
+                        $file->delete();
+                    }
+                }
             }
 
             //update brief video
             if ($request->hasFile('brief_video')) {
+                $existingFile = FranchaisorFile::where('franchaisor_id', $id)
+                    ->where('type', 'brief_video')
+                    ->first();
+                if ($existingFile) {
+                    Storage::delete($existingFile->file_path);
+                    $existingFile->delete();
+                }
                 $briefVideo = $request->file('brief_video');
                 $path = Storage::put('franchaisors', $briefVideo);
                 $franchaisorFile = new FranchaisorFile();
                 $franchaisorFile->file_path = $path;
                 $franchaisorFile->file_type = $briefVideo->getClientOriginalExtension();
-                $franchaisorFile->type = 'brief';
+                $franchaisorFile->type = 'brief_video';
                 $franchaisorFile->franchaisor_id = $franchaisor->id;
                 $franchaisorFile->save();
             }
 
+            // do here same as cover images
             //update details1 images
+            $uploadedDetails1ImageIds = [];
             if ($request->hasFile('details1_images')) {
                 $details1Images = $request->file('details1_images');
                 foreach ($details1Images as $image) {
@@ -524,9 +595,30 @@ class FranchaisorController extends Controller
                     $franchaisorFile->franchaisor_id = $franchaisor->id;
                     $franchaisorFile->save();
                 }
+                $uploadedDetails1ImageIds[] = $franchaisorFile->id;
+            } 
+            $cleanImageIds = [];
+            if ($request->input('details1_images')) {
+                if (is_array($request->input('details1_images'))) {
+                    $details1Images = $request->input('details1_images');
+                } else {
+                    $details1Images = json_decode($request->input('details1_images'));
+                }
+
+                $existingDetails1Files = FranchaisorFile::where('franchaisor_id', $id)
+                    ->where('type', 'details1')
+                    ->get();
+
+                foreach ($existingDetails1Files as $file) {
+                    if (!in_array((int) $file->id, $details1Images) && !in_array((int) $file->id, $uploadedDetails1ImageIds)) {
+                        Storage::delete($file->file_path);
+                        $file->delete();
+                    }
+                }
             }
 
             //update details2 images
+            $uploadedDetails2ImageIds = [];
             if ($request->hasFile('details2_images')) {
                 $details2Images = $request->file('details2_images');
                 foreach ($details2Images as $image) {
@@ -537,6 +629,26 @@ class FranchaisorController extends Controller
                     $franchaisorFile->type = 'details2';
                     $franchaisorFile->franchaisor_id = $franchaisor->id;
                     $franchaisorFile->save();
+                }
+                $uploadedDetails2ImageIds[] = $franchaisorFile->id;
+            }
+            $cleanImageIds = [];
+            if ($request->input('details2_images')) {
+                if (is_array($request->input('details2_images'))) {
+                    $details2Images = $request->input('details2_images');
+                } else {
+                    $details2Images = json_decode($request->input('details2_images'));
+                }
+
+                $existingDetails2Files = FranchaisorFile::where('franchaisor_id', $id)
+                    ->where('type', 'details2')
+                    ->get();
+
+                foreach ($existingDetails2Files as $file) {
+                    if (!in_array((int) $file->id, $details2Images) && !in_array((int) $file->id, $uploadedDetails2ImageIds)) {
+                        Storage::delete($file->file_path);
+                        $file->delete();
+                    }
                 }
             }
             return $this->sendResponse(['franchaisor' => $franchaisor, 'message' => 'Franchaisor updated successfully']);
