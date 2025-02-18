@@ -92,13 +92,15 @@ class FranchaisorController extends Controller
                         ];
                     }
                 });
-                // $brief_video = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'brief')->first();
-                // $franchaisor->brief_video = [
-                //     'id' => $brief_video->id,
-                //     'file_path' => Storage::url($brief_video->file_path),
-                //     'file_type' => $brief_video->file_type,
-                //     'type' => $brief_video->type,
-                // ];
+                $brief_video = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'brief')->first();
+                if ($brief_video && $brief_video->file_path && $brief_video->file_path != null) {
+                    $franchaisor->brief_video = [
+                        'id' => $brief_video->id,
+                        'file_path' => Storage::url($brief_video->file_path),
+                        'file_type' => $brief_video->file_type,
+                        'type' => $brief_video->type,
+                    ];
+                }
                 $details1_images = FranchaisorFile::where('franchaisor_id', $franchaisor->id)->where('type', 'details1')->get();
                 $franchaisor->details1_images = $details1_images->map(function ($file) {
                     if ($file->file_path && $file->file_path != null) {
