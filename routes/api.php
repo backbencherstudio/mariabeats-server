@@ -25,9 +25,7 @@ Route::get('/featured', [FeaturedController::class, 'index']);
 Route::post('/otp-verify', [AuthController::class, 'otpVerify']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 
-Route::post('/admin/franchaisor/{id}', [FranchaisorController::class, 'update']);
 
-Route::post('/admin/franchaisor', [FranchaisorController::class, 'store']);
 
 Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::get('/user', [AuthController::class, 'getUser']);
@@ -35,7 +33,9 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::post('/update', [AuthController::class, 'updateUser']);
     Route::get('/admin/franchaisors/export-data', [FranchaisorController::class, 'exportData']);
     Route::get('/admin/franchaisors', [FranchaisorController::class, 'index']);
+    Route::post('/admin/franchaisor', [FranchaisorController::class, 'store']);
     Route::get('/admin/franchaisor/{id}', [FranchaisorController::class, 'show']);
+    Route::post('/admin/franchaisor/{id}', [FranchaisorController::class, 'update']);
     Route::delete('/admin/franchaisor/{id}', [FranchaisorController::class, 'destroy']);
     Route::get('/admin/franchaisees/export-data', [FranchaiseeController::class, 'exportData']);
     Route::get('/admin/franchaisees', [FranchaiseeController::class, 'index']);

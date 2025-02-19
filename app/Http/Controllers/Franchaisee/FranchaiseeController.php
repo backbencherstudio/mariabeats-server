@@ -59,6 +59,11 @@ class FranchaiseeController extends Controller
         foreach ($franchaisees as $franchaisee) {
             $franchaisee->location = Country::where('id', (int) $franchaisee->country)->first();
         }
+        // pass the franchaisor name
+        foreach ($franchaisees as $franchaisee) {
+            $franchaisor = Franchaisor::where('id', (int) $franchaisee->franchaisor_id)->first();
+            $franchaisee->brand_name = $franchaisor->brand_name;
+        }
         return $this->sendResponse($franchaisees);
     }
 
