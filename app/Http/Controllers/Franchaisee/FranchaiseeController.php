@@ -197,6 +197,9 @@ class FranchaiseeController extends Controller
             if ($request->has('status')) {
                 $franchaisee->status = $request->status;
             }
+            if ($request->has('franchaisor_id')) {
+                $franchaisee->franchaisor_id = $request->franchaisor_id;
+            }
             $franchaisee->save();
 
             return $this->sendResponse('Franchaisee updated successfully');
