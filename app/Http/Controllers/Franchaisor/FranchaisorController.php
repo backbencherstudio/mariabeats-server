@@ -304,48 +304,58 @@ class FranchaisorController extends Controller
         try {
             $franchaisor = Franchaisor::find($id);
             // $franchaisor->files = FranchaisorFile::where('franchaisor_id', $id)->get();
-            $cover_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'cover')->get();
             $franchaisor->logo_path = Storage::url($franchaisor->logo_path);
-            $franchaisor->cover_images = $cover_images->map(function ($file) {
-                return [
-                    'id' => $file->id,
+            $cover_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'cover')->get();
+            // check if cover_images is not empty
+            if ($cover_images->isNotEmpty()) {
+                $franchaisor->cover_images = $cover_images->map(function ($file) {
+                    return [
+                        'id' => $file->id,
                     'file_path' => Storage::url($file->file_path),
                     'file_type' => $file->file_type,
-                ];
-            });
+                        ];
+                    });
+            }
             $brief_gallary_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'brief')->get();
-            $franchaisor->brief_gallary_images = $brief_gallary_images->map(function ($file) {
-                return [
+            if ($brief_gallary_images->isNotEmpty()) {
+                $franchaisor->brief_gallary_images = $brief_gallary_images->map(function ($file) {
+                    return [
                     'id' => $file->id,
                     'file_path' => Storage::url($file->file_path),
                     'file_type' => $file->file_type,
-                ];
-            });
+                        ];
+                    });
+            }
             $brief_video = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'brief_video')->first();
-            // pass as same files and brief_video is only one file
-            $franchaisor->brief_video = [
-                'id' => $brief_video->id,
-                'file_path' => Storage::url($brief_video->file_path),
-                'file_type' => $brief_video->file_type,
-            ];
+            if ($brief_video) {
+                $franchaisor->brief_video = [
+                    'id' => $brief_video->id,
+                    'file_path' => Storage::url($brief_video->file_path),
+                    'file_type' => $brief_video->file_type,
+                ];
+            }
             $details1_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'details1')->get();
-            $franchaisor->details1_images = $details1_images->map(function ($file) {
-                return [
-                    'id' => $file->id,
-                    'file_path' => Storage::url($file->file_path),
-                    'file_type' => $file->file_type,
-                    'type' => $file->type,
-                ];
-            });
+            if ($details1_images->isNotEmpty()) {
+                $franchaisor->details1_images = $details1_images->map(function ($file) {
+                    return [
+                        'id' => $file->id,
+                        'file_path' => Storage::url($file->file_path),
+                        'file_type' => $file->file_type,
+                        'type' => $file->type,
+                    ];
+                });
+            }
             $details2_images = FranchaisorFile::where('franchaisor_id', $id)->where('type', 'details2')->get();
-            $franchaisor->details2_images = $details2_images->map(function ($file) {
-                return [
+            if ($details2_images->isNotEmpty()) {
+                $franchaisor->details2_images = $details2_images->map(function ($file) {
+                    return [
                     'id' => $file->id,
                     'file_path' => Storage::url($file->file_path),
                     'file_type' => $file->file_type,
                     'type' => $file->type,
-                ];
-            });
+                    ];
+                });
+            }
             $franchaisor->interested_countries = FranchaisorCountries::where('franchaisor_id', $id)->get();
             $franchaisor->location = Country::where('id', (int) $franchaisor->address)->first();
             return $this->sendResponse($franchaisor);
