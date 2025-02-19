@@ -146,27 +146,28 @@ class FranchaisorController extends Controller
     public function store(Request $request)
     {
         // dd($request->all());
-        $validator = Validator::make($request->all(), [
-            'brand_name' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'position' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'phone_number' => 'required|string|max:255',
-            'location' => 'required|string|max:255',
-            'interested_countries' => 'required',
-            'industry' => 'required|string|max:255',
+        // $validator = Validator::make($request->all(), [
+            // make validations as update function
+            // 'brand_name' => 'required|string|max:255',
+            // 'name' => 'required|string|max:255',
+            // 'position' => 'required|string|max:255',
+            // 'email' => 'required|string|email|max:255|unique:users',
+            // 'phone_number' => 'required|string|max:255',
+            // 'location' => 'required|string|max:255',
+            // 'interested_countries' => 'required',
+            // 'industry' => 'required|string|max:255',
             // 'investment' => 'required|numeric',
-            'timeframe' => 'required|string|max:255',
-            'joined_at' => 'required|date',
-            'end_at' => 'required|date',
+            // 'timeframe' => 'required|string|max:255',
+            // 'joined_at' => 'required|date',
+            // 'end_at' => 'required|date',
             // 'cover_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            // 'logo' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-            'brief_heading' => 'required|string|max:255',
-            'brief_description' => 'required|string|max:255',
-            'brief_country_of_region' => 'required|string|max:255',
-            'brief_available' => 'required|string|max:255',
-            'brief_business_type' => 'required|string|max:255',
-            'brief_min_investment' => 'required|numeric',
+            // 'logo' => 'file|mimes:jpeg,png,jpg,gif,svg|required',
+            // 'brief_heading' => 'required|string|max:255',
+            // 'brief_description' => 'required|string|max:255',
+            // 'brief_country_of_region' => 'required|string|max:255',
+            // 'brief_available' => 'required|string|max:255',
+            // 'brief_business_type' => 'required|string|max:255',
+            // 'brief_min_investment' => 'required|numeric',
             // 'details1_heading' => 'required|string|max:255',
             // 'details1_description' => 'required|string|max:255',
             // 'details2_heading' => 'required|string|max:255',
@@ -175,11 +176,11 @@ class FranchaisorController extends Controller
             // 'brief_video' => 'file',
             // 'details1_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
             // 'details2_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-        ]);
+        // ]);
 
-        if ($validator->fails()) {
-            return $this->sendError('Validation Error.', $validator->errors());
-        }
+        // if ($validator->fails()) {
+        //     return $this->sendError($validator->errors());
+        // }
 
         //create franchaisor
         $franchaisor = new Franchaisor();
@@ -378,39 +379,39 @@ class FranchaisorController extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            $validator = Validator::make($request->all(), [
-                'brand_name' => 'string|max:255',
-                'name' => 'string|max:255',
-                'position' => 'string|max:255',
-                'email' => 'string|email|max:255|unique:users',
-                'phone_number' => 'string|max:255',
-                'location' => 'string|max:255',
-                // 'interested_countries' => 'required',
-                'industry' => 'string|max:255',
-                'timeframe' => 'string|max:255',
-                'joined_at' => 'date',
-                'end_at' => 'date',
-                // 'cover_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                // 'logo' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'brief_heading' => 'string|max:255',
-                'brief_description' => 'string|max:255',
-                'brief_country_of_region' => 'string|max:255',
-                'brief_available' => 'string|max:255',
-                'brief_business_type' => 'string|max:255',
-                'brief_min_investment' => 'numeric',
-                // 'details1_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'details1_heading' => 'string|max:255',
-                'details1_description' => 'string|max:255',
-                // 'details2_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                'details2_heading' => 'string|max:255',
-                'details2_description' => 'string|max:255',
-                // 'brief_gallary_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                // 'brief_video' => 'file|mimes:mp4,mov,avi,wmv,flv,mpeg,mpg,m4v,3gp,3g2,mj2,webm,mkv|max:2048',
-            ]);
+        //     $validator = Validator::make($request->all(), [
+        //         'brand_name' => 'string|max:255',
+        //         'name' => 'string|max:255',
+        //         'position' => 'string|max:255',
+        //         'email' => 'string|email|max:255|unique:users',
+        //         'phone_number' => 'string|max:255',
+        //         'location' => 'string|max:255',
+        //         'interested_countries' => 'required',
+        //         'industry' => 'string|max:255',
+        //         'timeframe' => 'string|max:255',
+        //         'joined_at' => 'date',
+        //         'end_at' => 'date',
+        //         'cover_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        //         'logo' => 'file|mimes:jpeg,png,jpg,gif,svg|required',
+        //         'brief_heading' => 'string|max:255',
+        //         'brief_description' => 'string|max:255',
+        //         'brief_country_of_region' => 'string|max:255',
+        //         'brief_available' => 'string|max:255',
+        //         'brief_business_type' => 'string|max:255',
+        //         'brief_min_investment' => 'numeric',
+        //         'details1_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        //         'details1_heading' => 'string|max:255',
+        //         'details1_description' => 'string|max:255',
+        //         'details2_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        //         'details2_heading' => 'string|max:255',
+        //         'details2_description' => 'string|max:255',
+        //         'brief_gallary_images' => 'file|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        //         'brief_video' => 'file|mimes:mp4,mov,avi,wmv,flv,mpeg,mpg,m4v,3gp,3g2,mj2,webm,mkv|max:2048',
+        //     ]);
 
-            if ($validator->fails()) {
-                return $this->sendError('Validation Error.', $validator->errors());
-            }
+            // if ($validator->fails()) {
+            //     return $this->sendError($validator->errors());
+            // }
 
             //update franchaisor
             $franchaisor = Franchaisor::find($id);
