@@ -311,8 +311,8 @@ class FranchaisorController extends Controller
                 $franchaisor->cover_images = $cover_images->map(function ($file) {
                     return [
                         'id' => $file->id,
-                    'file_path' => Storage::url($file->file_path),
-                    'file_type' => $file->file_type,
+                        'file_path' => Storage::url($file->file_path),
+                        'file_type' => $file->file_type,
                         ];
                     });
             }
@@ -320,9 +320,9 @@ class FranchaisorController extends Controller
             if ($brief_gallary_images->isNotEmpty()) {
                 $franchaisor->brief_gallary_images = $brief_gallary_images->map(function ($file) {
                     return [
-                    'id' => $file->id,
-                    'file_path' => Storage::url($file->file_path),
-                    'file_type' => $file->file_type,
+                        'id' => $file->id,
+                        'file_path' => Storage::url($file->file_path),
+                        'file_type' => $file->file_type,
                         ];
                     });
             }
