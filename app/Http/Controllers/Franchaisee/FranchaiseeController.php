@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\FranchaiseeRequestCreated;
 
 class FranchaiseeController extends Controller
 {
@@ -265,6 +267,7 @@ class FranchaiseeController extends Controller
 
     public function doFranchaiseeRequest(Request $request)
     {
+        // dd($request->all());
         try {
             $validator = Validator::make($request->all(), [
                 'name' => 'nullable|string|max:255',
@@ -291,6 +294,8 @@ class FranchaiseeController extends Controller
             $franchaiseeRequest->timeframe = $request->timeframe;
             $franchaiseeRequest->message = $request->message;
             $franchaiseeRequest->save();
+            // Send email notification
+            Mail::to($franchaiseeRequest->email)->send(new FranchaiseeRequestCreated($franchaiseeRequest));
             return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request sent successfully']);
         } catch (\Throwable $th) {
             return $this->sendError('Error sending franchaisee request', $th->getMessage());
@@ -308,10 +313,14 @@ class FranchaiseeController extends Controller
 
     public function franchaiseeRequestUpdate(Request $request, string $id)
     {
-        $franchaiseeRequest = FranchaiseeRequest::find($id);
-        $franchaiseeRequest->status = $request->status;
-        $franchaiseeRequest->save();
-        return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request updated successfully']);
+        try {
+            $franchaiseeRequest = FranchaiseeRequest::find($id);
+            $franchaiseeRequest->status = $request->status;
+            $franchaiseeRequest->save();
+            return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request updated successfully']);
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), 500);
+        }
     }
 
     public function franchaiseeRequestDelete(Request $request, string $id)

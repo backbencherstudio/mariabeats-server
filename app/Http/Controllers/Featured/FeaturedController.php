@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Featured;
 
 use App\Http\Controllers\Controller;
+use App\Models\Address\Country;
 use App\Models\Featured\Featured;
 use App\Models\Franchaisor\Franchaisor;
 use Illuminate\Http\Request;
@@ -19,9 +20,11 @@ class FeaturedController extends Controller
     {
         try {
             $featured = Featured::with('franchaisor')->get();
+            // pass the location of the franchaisor
             $featured = $featured->map(function ($item) {
-                if ($item->franchaisor->logo_path && $item->franchaisor->logo_path != null) {
+                if ($item->franchaisor->logo_path && $item->franchaisor->logo_path != null && $item->franchaisor->address && $item->franchaisor->address != null) {
                     $item->franchaisor->logo_path = Storage::url($item->franchaisor->logo_path);
+                    $item->franchaisor->location = Country::where('id', (int) $item->franchaisor->address)->first();
                 }
                 return $item;
             });
