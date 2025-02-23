@@ -14,6 +14,7 @@ class CountrySeeder extends Seeder
     public function run(): void
     {
         $countries = [
+            ['name' => 'GCC'],
             ['name' => 'MENA'],
             ['name' => 'UAE'],
             ['name' => 'Asia'],
@@ -22,6 +23,10 @@ class CountrySeeder extends Seeder
         ];
 
         foreach ($countries as $country) {
+            // check if country already exists do not create again
+            if (Country::where('name', $country['name'])->exists()) {
+                continue;
+            }
             Country::create($country);
         }
     }
