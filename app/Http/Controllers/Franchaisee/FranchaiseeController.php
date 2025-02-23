@@ -294,8 +294,10 @@ class FranchaiseeController extends Controller
             $franchaiseeRequest->timeframe = $request->timeframe;
             $franchaiseeRequest->message = $request->message;
             $franchaiseeRequest->save();
+
             // Send email notification
-            Mail::to($franchaiseeRequest->email)->send(new FranchaiseeRequestCreated($franchaiseeRequest));
+            // Mail::to($franchaiseeRequest->email)->send(new FranchaiseeRequestCreated($franchaiseeRequest));
+
             return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request sent successfully']);
         } catch (\Throwable $th) {
             return $this->sendError('Error sending franchaisee request', $th->getMessage());
