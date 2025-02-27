@@ -296,7 +296,7 @@ class FranchaiseeController extends Controller
             $franchaiseeRequest->save();
 
             // Send email notification
-            // Mail::to($franchaiseeRequest->email)->send(new FranchaiseeRequestCreated($franchaiseeRequest));
+            // Mail::to(env('OWNER_EMAIL'))->send(new FranchaiseeRequestCreated($franchaiseeRequest));
 
             return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request sent successfully']);
         } catch (\Throwable $th) {
