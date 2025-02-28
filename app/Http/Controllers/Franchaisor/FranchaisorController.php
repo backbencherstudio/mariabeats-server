@@ -32,35 +32,35 @@ class FranchaisorController extends Controller
             $query = Franchaisor::query();
 
             // Apply filters based on query parameters
-            if ($request->has('duration')) {
+            if ($request->has('duration') && $request->query('duration') != null) {
                 $dateLimit = now()->subDays($request->query('duration', 7)); // Default 7 days
                 $query->where('created_at', '>=', $dateLimit);
             }
 
-            if ($request->has('start_date') && $request->has('end_date')) {
+            if ($request->has('start_date') && $request->has('end_date') && $request->query('start_date') != null && $request->query('end_date') != null) {
                 $query->whereBetween('joined_at', [
                     Carbon::parse($request->query('start_date'))->format('Y-m-d 00:00:00'),
                     Carbon::parse($request->query('end_date'))->format('Y-m-d 23:59:59')
                 ]);
-            } elseif ($request->has('start_date')) {
+            } elseif ($request->has('start_date') && $request->query('start_date') != null) {
                 $query->where('joined_at', '=', Carbon::parse($request->query('start_date'))->format('Y-m-d 00:00:00'));
-            } elseif ($request->has('end_date')) {
+            } elseif ($request->has('end_date') && $request->query('end_date') != null) {
                 $query->where('end_at', '=', Carbon::parse($request->query('end_date'))->format('Y-m-d 23:59:59'));
             }
 
-            if ($request->has('industry')) {
+            if ($request->has('industry') && $request->query('industry') != null) {
                 $query->where('industry', 'like', '%' . $request->query('industry') . '%');
             }
 
-            if ($request->has('location_id')) {
+            if ($request->has('location_id') && $request->query('location_id') != null) {
                 $query->where('address', (int) $request->query('location_id'));
             }
 
-            if ($request->has('brand_name')) {
+            if ($request->has('brand_name') && $request->query('brand_name') != null) {
                 $query->where('brand_name', 'like', '%' . $request->query('brand_name') . '%');
             }
 
-            if ($request->has('brief_min_investment')) {
+            if ($request->has('brief_min_investment') && $request->query('brief_min_investment') != null) {
                 $query->where('brief_min_investment', 'like', '%' . $brief_min_investment . '%');
             }
 
