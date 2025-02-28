@@ -27,6 +27,6 @@ class FranchaiseeRequestCreated extends Mailable
     public function build()
     {
         return $this->markdown('emails.franchaisee.request-created')
-                    ->subject('Welcome to Our Franchise Network');
+                    ->subject('New Franchaisee Request');
     }
 } 
