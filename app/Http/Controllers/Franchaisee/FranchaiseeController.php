@@ -265,7 +265,7 @@ class FranchaiseeController extends Controller
         }
     }
 
-    public function doFranchaiseeRequest(Request $request)
+    public function doFranchaiseeRequest(Request $request, string $id)
     {
         // dd($request->all());
         try {
@@ -284,6 +284,11 @@ class FranchaiseeController extends Controller
                 return $this->sendError('Validation Error.', $validator->errors());
             }
 
+            $franchaisor = Franchaisor::find($id);
+            if (!$franchaisor) {
+                return $this->sendError('Franchaisor not found');
+            }
+
             $franchaiseeRequest = new FranchaiseeRequest();
             $franchaiseeRequest->name = $request->name;
             $franchaiseeRequest->email = $request->email;
@@ -293,10 +298,11 @@ class FranchaiseeController extends Controller
             $franchaiseeRequest->investment_amount = $request->investment_amount;
             $franchaiseeRequest->timeframe = $request->timeframe;
             $franchaiseeRequest->message = $request->message;
+            $franchaiseeRequest->franchaisor_id = $franchaisor->id;
             $franchaiseeRequest->save();
 
             // Send email notification
-            Mail::to('maryamalarab@gmail.com')->send(new FranchaiseeRequestCreated($franchaiseeRequest));
+            Mail::to('maryamalarab@gmail.com')->send(new FranchaiseeRequestCreated($franchaiseeRequest, $franchaisor));
 
             return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request sent successfully']);
         } catch (\Throwable $th) {

@@ -12,13 +12,15 @@ class FranchaiseeRequestCreated extends Mailable
     use Queueable, SerializesModels;
 
     public $franchaisee;
+    public $franchaisor;
 
     /**
      * Create a new message instance.
      */
-    public function __construct($franchaisee)
+    public function __construct($franchaisee, $franchaisor)
     {
         $this->franchaisee = $franchaisee;
+        $this->franchaisor = $franchaisor;
     }
 
     /**
