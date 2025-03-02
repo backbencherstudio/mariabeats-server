@@ -12,7 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('franchaisee_requests', function (Blueprint $table) {
-            $table->foreignId('franchaisor_id')->constrained('franchaisors')->after('status')->nullable()->onDelete('cascade');
+            // check it's already exist
+            if (!Schema::hasColumn('franchaisee_requests', 'franchaisor_id')) {
+                $table->foreignId('franchaisor_id')->constrained('franchaisors')->after('status')->nullable()->onDelete('cascade');
+            }
         });
     }
 
@@ -22,7 +25,9 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('franchaisee_requests', function (Blueprint $table) {
-            $table->dropColumn('franchaisor_id');
+            if (Schema::hasColumn('franchaisee_requests', 'franchaisor_id')) {
+                $table->dropColumn('franchaisor_id');
+            }
         });
     }
 };
