@@ -302,7 +302,7 @@ class FranchaiseeController extends Controller
             $franchaiseeRequest->save();
 
             // Send email notification
-            Mail::to('maryamalarab@gmail.com')->send(new FranchaiseeRequestCreated($franchaiseeRequest, $franchaisor));
+            Mail::to('gulffranchisehub@gmail.com')->send(new FranchaiseeRequestCreated($franchaiseeRequest, $franchaisor));
 
             return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request sent successfully']);
         } catch (\Throwable $th) {
