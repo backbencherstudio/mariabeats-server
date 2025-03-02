@@ -3,7 +3,7 @@
 namespace App\Models\Franchaisee;
 
 use Illuminate\Database\Eloquent\Model;
-
+use App\Models\Franchaisor\Franchaisor;
 class FranchaiseeRequest extends Model
 {
     protected $fillable = [
@@ -17,4 +17,9 @@ class FranchaiseeRequest extends Model
         'message',
         'status',
     ];
+
+    public function franchaisor()
+    {
+        return $this->belongsTo(Franchaisor::class);
+    }   
 }

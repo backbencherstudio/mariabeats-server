@@ -314,6 +314,7 @@ class FranchaiseeController extends Controller
     {
         $franchaiseeRequests = FranchaiseeRequest::query()
             ->where('status', '!=', 'rejected')
+            ->with('franchaisor')
             ->get();
 
         return $this->sendResponse($franchaiseeRequests);
