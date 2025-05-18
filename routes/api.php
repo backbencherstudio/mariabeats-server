@@ -8,6 +8,9 @@ use App\Http\Controllers\Dashboard\DashboardController;
 use App\Http\Controllers\Featured\FeaturedController;
 use App\Http\Controllers\Franchaisee\FranchaiseeController;
 use App\Http\Controllers\Franchaisor\FranchaisorController;
+use App\Http\Controllers\Home\HomeContents;
+use App\Http\Controllers\Partner\PartnerController;
+use App\Http\Controllers\Testimonial\TestimonialController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -51,4 +54,7 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::delete('/admin/franchaisee-request/{id}', [FranchaiseeController::class, 'franchaiseeRequestDelete']);
     Route::delete('/admin/franchaisor-request/{id}', [FranchaisorController::class, 'franchaisorRequestDelete']);
     Route::resource('/admin/featured', FeaturedController::class);
+    Route::resource('/admin/home-contents', HomeContents::class);
+    Route::resource('/admin/partners', PartnerController::class);
+    Route::resource('/admin/testimonials', TestimonialController::class);
 });

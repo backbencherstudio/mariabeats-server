@@ -13,13 +13,14 @@ return new class extends Migration
     {
         Schema::create('home_contents', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->string('heading');
-            $table->string('description');
-            $table->string('video_url');
-            $table->string('image_url');
-            $table->string('button_text');
-            $table->string('button_link');
+            $table->string('title')->nullable();
+            $table->string('heading')->nullable();
+            $table->string('description')->nullable();
+            $table->string('video_url')->nullable();
+            $table->string('image_url')->nullable();
+            $table->string('button_text')->nullable();
+            $table->string('button_link')->nullable();
+            $table->string('section_name')->nullable();
             $table->timestamps();
         });
     }

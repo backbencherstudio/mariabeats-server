@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers\Home;
+namespace App\Http\Controllers\Partner;
 
 use App\Http\Controllers\Controller;
-use App\Models\Home\HomeContents as HomeHomeContents;
+use App\Models\Partner\Partner as PartnerPartner;
+use App\Models\Partner\Partners;
 use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
 
-class HomeContents extends Controller
+class PartnerController extends Controller
 {
     use CommonTrait;
 
@@ -17,8 +18,8 @@ class HomeContents extends Controller
     public function index()
     {
         try {
-            $homeContents = HomeHomeContents::orderBy('id', 'desc')->get();
-            return $this->sendResponse($homeContents, 'Home Contents fetched successfully');
+            $partners = Partners::orderBy('id', 'desc')->get();
+            return $this->sendResponse($partners, 'Partners fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -38,15 +39,8 @@ class HomeContents extends Controller
     public function store(Request $request)
     {
         try {
-            // dd($request->hasFile('video'));
-            if ($request->hasFile('video')) {
-                $video = $request->file('video');
-                $videoName = time() . '.' . $video->getClientOriginalExtension();
-                $video->move(public_path('uploads/home-contents'), $videoName);
-                $request->merge(['video_url' => $videoName]);
-            }
-            $homeContents = HomeHomeContents::create($request->all());
-            return $this->sendResponse($homeContents, 'Home Contents created successfully');
+            $partners = Partners::create($request->all());
+            return $this->sendResponse($partners, 'Partners created successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -58,8 +52,8 @@ class HomeContents extends Controller
     public function show(string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
-            return $this->sendResponse($homeContents, 'Home Contents fetched successfully');
+            $partners = Partners::find($id);
+            return $this->sendResponse($partners, 'Partners fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -71,9 +65,9 @@ class HomeContents extends Controller
     public function edit(Request $request, string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
-            $homeContents->update($request->all());
-            return $this->sendResponse($homeContents, 'Home Contents updated successfully');
+            $partners = Partners::find($id);
+            $partners->update($request->all());
+            return $this->sendResponse($partners, 'Partners updated successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -85,9 +79,9 @@ class HomeContents extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
-            $homeContents->update($request->all());
-            return $this->sendResponse($homeContents, 'Home Contents updated successfully');
+            $partners = Partners::find($id);
+            $partners->update($request->all());
+            return $this->sendResponse($partners, 'Partners updated successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -99,9 +93,9 @@ class HomeContents extends Controller
     public function destroy(string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
-            $homeContents->delete();
-            return $this->sendResponse($homeContents, 'Home Contents deleted successfully');
+            $partners = Partners::find($id);
+            $partners->delete();
+            return $this->sendResponse($partners, 'Partners deleted successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }

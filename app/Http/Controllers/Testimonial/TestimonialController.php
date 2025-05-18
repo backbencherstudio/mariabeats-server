@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Home;
+namespace App\Http\Controllers\Testimonial;
 
 use App\Http\Controllers\Controller;
-use App\Models\Home\HomeContents as HomeHomeContents;
+use App\Models\Testimonial\Testimonials;
 use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
 
-class HomeContents extends Controller
+class TestimonialController extends Controller
 {
     use CommonTrait;
 
@@ -17,8 +17,8 @@ class HomeContents extends Controller
     public function index()
     {
         try {
-            $homeContents = HomeHomeContents::orderBy('id', 'desc')->get();
-            return $this->sendResponse($homeContents, 'Home Contents fetched successfully');
+            $testimonials = Testimonials::orderBy('id', 'desc')->get();
+            return $this->sendResponse($testimonials, 'Testimonials fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -38,15 +38,8 @@ class HomeContents extends Controller
     public function store(Request $request)
     {
         try {
-            // dd($request->hasFile('video'));
-            if ($request->hasFile('video')) {
-                $video = $request->file('video');
-                $videoName = time() . '.' . $video->getClientOriginalExtension();
-                $video->move(public_path('uploads/home-contents'), $videoName);
-                $request->merge(['video_url' => $videoName]);
-            }
-            $homeContents = HomeHomeContents::create($request->all());
-            return $this->sendResponse($homeContents, 'Home Contents created successfully');
+            $testimonials = Testimonials::create($request->all());
+            return $this->sendResponse($testimonials, 'Testimonials created successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -58,8 +51,8 @@ class HomeContents extends Controller
     public function show(string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
-            return $this->sendResponse($homeContents, 'Home Contents fetched successfully');
+            $testimonials = Testimonials::find($id);
+            return $this->sendResponse($testimonials, 'Testimonials fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -71,9 +64,9 @@ class HomeContents extends Controller
     public function edit(Request $request, string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
-            $homeContents->update($request->all());
-            return $this->sendResponse($homeContents, 'Home Contents updated successfully');
+            $testimonials = Testimonials::find($id);
+            $testimonials->update($request->all());
+            return $this->sendResponse($testimonials, 'Testimonials updated successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -85,9 +78,9 @@ class HomeContents extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
-            $homeContents->update($request->all());
-            return $this->sendResponse($homeContents, 'Home Contents updated successfully');
+            $testimonials = Testimonials::find($id);
+            $testimonials->delete();
+            return $this->sendResponse($testimonials, 'Testimonials deleted successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -99,9 +92,9 @@ class HomeContents extends Controller
     public function destroy(string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
-            $homeContents->delete();
-            return $this->sendResponse($homeContents, 'Home Contents deleted successfully');
+            $testimonials = Testimonials::find($id);
+            $testimonials->delete();
+            return $this->sendResponse($testimonials, 'Testimonials deleted successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
