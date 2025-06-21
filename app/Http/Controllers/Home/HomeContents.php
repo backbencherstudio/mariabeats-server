@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Home;
 
 use App\Http\Controllers\Controller;
-use App\Models\Home\HomeContents as HomeHomeContents;
+use App\Models\Home\HomeContents as HomeContentsModel;
 use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
 
@@ -17,7 +17,7 @@ class HomeContents extends Controller
     public function index()
     {
         try {
-            $homeContents = HomeHomeContents::orderBy('id', 'desc')->get();
+            $homeContents = HomeContentsModel::orderBy('id', 'desc')->get();
             return $this->sendResponse($homeContents, 'Home Contents fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
@@ -38,14 +38,14 @@ class HomeContents extends Controller
     public function store(Request $request)
     {
         try {
-            // dd($request->hasFile('video'));
+            dd($request->all());
             if ($request->hasFile('video')) {
                 $video = $request->file('video');
                 $videoName = time() . '.' . $video->getClientOriginalExtension();
                 $video->move(public_path('uploads/home-contents'), $videoName);
                 $request->merge(['video_url' => $videoName]);
             }
-            $homeContents = HomeHomeContents::create($request->all());
+            $homeContents = HomeContentsModel::create($request->all());
             return $this->sendResponse($homeContents, 'Home Contents created successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
@@ -58,7 +58,7 @@ class HomeContents extends Controller
     public function show(string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
+            $homeContents = HomeContentsModel::find($id);
             return $this->sendResponse($homeContents, 'Home Contents fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
@@ -71,7 +71,7 @@ class HomeContents extends Controller
     public function edit(Request $request, string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
+            $homeContents = HomeContentsModel::find($id);
             $homeContents->update($request->all());
             return $this->sendResponse($homeContents, 'Home Contents updated successfully');
         } catch (\Exception $e) {
@@ -85,7 +85,7 @@ class HomeContents extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
+            $homeContents = HomeContentsModel::find($id);
             $homeContents->update($request->all());
             return $this->sendResponse($homeContents, 'Home Contents updated successfully');
         } catch (\Exception $e) {
@@ -99,7 +99,7 @@ class HomeContents extends Controller
     public function destroy(string $id)
     {
         try {
-            $homeContents = HomeHomeContents::find($id);
+            $homeContents = HomeContentsModel::find($id);
             $homeContents->delete();
             return $this->sendResponse($homeContents, 'Home Contents deleted successfully');
         } catch (\Exception $e) {
