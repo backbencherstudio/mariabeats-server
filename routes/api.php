@@ -27,6 +27,7 @@ Route::get('/countries', [CountryController::class, 'index']);
 Route::get('/featured', [FeaturedController::class, 'index']);
 Route::post('/otp-verify', [AuthController::class, 'otpVerify']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+Route::get('/home-contents', [HomeContents::class, 'index']);
 
 
 

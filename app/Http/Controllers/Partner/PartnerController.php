@@ -3,10 +3,11 @@
 namespace App\Http\Controllers\Partner;
 
 use App\Http\Controllers\Controller;
-use App\Models\Partner\Partner as PartnerPartner;
+use App\Models\Partner\PartnerLogo;
 use App\Models\Partner\Partners;
 use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class PartnerController extends Controller
 {
@@ -18,7 +19,16 @@ class PartnerController extends Controller
     public function index()
     {
         try {
-            $partners = Partners::orderBy('id', 'desc')->get();
+            $partners = Partners::with('logos')->orderBy('id', 'desc')->get();
+            $partners = $partners->map(function ($item) {
+                if ($item->logos) {
+                    $item->logos = $item->logos->map(function ($logo) {
+                        $logo->logo = Storage::url($logo->logo);
+                        return $logo;
+                    });
+                }
+                return $item;
+            });
             return $this->sendResponse($partners, 'Partners fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
@@ -39,8 +49,29 @@ class PartnerController extends Controller
     public function store(Request $request)
     {
         try {
-            $partners = Partners::create($request->all());
-            return $this->sendResponse($partners, 'Partners created successfully');
+            // Create partner
+            $partner = Partners::create($request->except(array_keys($request->allFiles())));
+            
+            // Handle logo uploads
+            $allFiles = $request->allFiles();
+            foreach ($allFiles as $key => $file) {
+                if (strpos($key, 'brand_logos') === 0) {
+                    $path = Storage::put('partners', $file);
+                    PartnerLogo::create([
+                        'partner_id' => $partner->id,
+                        'logo' => $path
+                    ]);
+                }
+            }
+            
+            // Load logos for response
+            $partner->load('logos');
+            $partner->logos = $partner->logos->map(function ($logo) {
+                $logo->logo = Storage::url($logo->logo);
+                return $logo;
+            });
+            
+            return $this->sendResponse($partner, 'Partners created successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }
@@ -52,7 +83,13 @@ class PartnerController extends Controller
     public function show(string $id)
     {
         try {
-            $partners = Partners::find($id);
+            $partners = Partners::with('logos')->find($id);
+            if ($partners->logos) {
+                $partners->logos = $partners->logos->map(function ($logo) {
+                    $logo->logo = Storage::url($logo->logo);
+                    return $logo;
+                });
+            }
             return $this->sendResponse($partners, 'Partners fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
@@ -80,7 +117,29 @@ class PartnerController extends Controller
     {
         try {
             $partners = Partners::find($id);
-            $partners->update($request->all());
+            
+            // Update partner data
+            $partners->update($request->except(array_keys($request->allFiles())));
+            
+            // Handle new logo uploads
+            $allFiles = $request->allFiles();
+            foreach ($allFiles as $key => $file) {
+                if (strpos($key, 'brand_logos') === 0) {
+                    $path = Storage::put('partners', $file);
+                    PartnerLogo::create([
+                        'partner_id' => $partners->id,
+                        'logo' => $path
+                    ]);
+                }
+            }
+            
+            // Load logos for response
+            $partners->load('logos');
+            $partners->logos = $partners->logos->map(function ($logo) {
+                $logo->logo = Storage::url($logo->logo);
+                return $logo;
+            });
+            
             return $this->sendResponse($partners, 'Partners updated successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);

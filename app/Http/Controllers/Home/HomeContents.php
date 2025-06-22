@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Home\HomeContents as HomeContentsModel;
 use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class HomeContents extends Controller
 {
@@ -18,6 +19,12 @@ class HomeContents extends Controller
     {
         try {
             $homeContents = HomeContentsModel::orderBy('id', 'desc')->get();
+            $homeContents = $homeContents->map(function ($item) {
+                if ($item->video_url) {
+                    $item->video_url = Storage::url($item->video_url);
+                }
+                return $item;
+            });
             return $this->sendResponse($homeContents, 'Home Contents fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
@@ -38,12 +45,11 @@ class HomeContents extends Controller
     public function store(Request $request)
     {
         try {
-            dd($request->all());
+            // dd($request->all());
             if ($request->hasFile('video')) {
                 $video = $request->file('video');
-                $videoName = time() . '.' . $video->getClientOriginalExtension();
-                $video->move(public_path('uploads/home-contents'), $videoName);
-                $request->merge(['video_url' => $videoName]);
+                $path = Storage::put('home-contents', $video);
+                $request->merge(['video_url' => $path]);
             }
             $homeContents = HomeContentsModel::create($request->all());
             return $this->sendResponse($homeContents, 'Home Contents created successfully');
