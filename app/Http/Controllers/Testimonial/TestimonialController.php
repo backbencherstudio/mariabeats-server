@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Testimonial\Testimonials;
 use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class TestimonialController extends Controller
 {
@@ -18,6 +19,10 @@ class TestimonialController extends Controller
     {
         try {
             $testimonials = Testimonials::orderBy('id', 'desc')->get();
+            $testimonials->map(function ($testimonial) {
+                $testimonial->image_url = Storage::url($testimonial->image_url);
+                return $testimonial;
+            });
             return $this->sendResponse($testimonials, 'Testimonials fetched successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
@@ -38,6 +43,13 @@ class TestimonialController extends Controller
     public function store(Request $request)
     {
         try {
+            if ($request->allFiles()) {
+                $allFiles = $request->allFiles();
+                foreach ($allFiles as $key => $file) {
+                    $path = Storage::put('testimonials', $file);
+                    $request->merge(['image_url' => $path]);
+                }
+            }
             $testimonials = Testimonials::create($request->all());
             return $this->sendResponse($testimonials, 'Testimonials created successfully');
         } catch (\Exception $e) {
@@ -79,8 +91,15 @@ class TestimonialController extends Controller
     {
         try {
             $testimonials = Testimonials::find($id);
-            $testimonials->delete();
-            return $this->sendResponse($testimonials, 'Testimonials deleted successfully');
+            if ($request->allFiles()) {
+                $allFiles = $request->allFiles();
+                foreach ($allFiles as $key => $file) {
+                    $path = Storage::put('testimonials', $file);
+                    $request->merge(['image_url' => $path]);
+                }
+            }
+            $testimonials->update($request->all());
+            return $this->sendResponse($testimonials, 'Testimonials updated successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }

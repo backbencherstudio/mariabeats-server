@@ -121,6 +121,27 @@ class PartnerController extends Controller
             // Update partner data
             $partners->update($request->except(array_keys($request->allFiles())));
             
+            // Handle existing logo IDs - keep only the ones in the request
+            if ($request->has('brand_logos')) {
+                $brandLogosData = json_decode($request->brand_logos, true);
+                $existingLogoIds = collect($brandLogosData)->pluck('id')->toArray();
+                
+                // Get all logos of the partner
+                $allPartnerLogos = $partners->logos;
+                // dd($allPartnerLogos);
+                
+                // Check which logos should be deleted (not in the provided array)
+                foreach ($allPartnerLogos as $logo) {
+                    if (!in_array($logo->id, $existingLogoIds)) {
+                        // dd(!in_array($logo->id, $existingLogoIds));
+                        // Delete file from storage
+                        Storage::delete($logo->logo);
+                        // Delete database record
+                        $logo->delete();
+                    }
+                }
+            }
+            
             // Handle new logo uploads
             $allFiles = $request->allFiles();
             foreach ($allFiles as $key => $file) {

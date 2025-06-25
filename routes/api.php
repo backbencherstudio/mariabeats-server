@@ -57,5 +57,7 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::resource('/admin/featured', FeaturedController::class);
     Route::resource('/admin/home-contents', HomeContents::class);
     Route::resource('/admin/partners', PartnerController::class);
+    Route::post('/admin/partners/{id}', [PartnerController::class, 'update']);
     Route::resource('/admin/testimonials', TestimonialController::class);
+    Route::post('/admin/testimonials/{id}', [TestimonialController::class, 'update']);
 });
