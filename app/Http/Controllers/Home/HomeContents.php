@@ -91,7 +91,13 @@ class HomeContents extends Controller
     public function update(Request $request, string $id)
     {
         try {
+            dd($id);
             $homeContents = HomeContentsModel::find($id);
+            if ($request->hasFile('video')) {
+                $video = $request->file('video');
+                $path = Storage::put('home-contents', $video);
+                $request->merge(['video_url' => $path]);
+            }
             $homeContents->update($request->all());
             return $this->sendResponse($homeContents, 'Home Contents updated successfully');
         } catch (\Exception $e) {

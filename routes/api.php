@@ -10,6 +10,8 @@ use App\Http\Controllers\Franchaisee\FranchaiseeController;
 use App\Http\Controllers\Franchaisor\FranchaisorController;
 use App\Http\Controllers\Home\HomeContents;
 use App\Http\Controllers\Partner\PartnerController;
+use App\Http\Controllers\Service\ServiceController;
+use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Testimonial\TestimonialController;
 
 Route::get('/user', function (Request $request) {
@@ -56,8 +58,13 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::delete('/admin/franchaisor-request/{id}', [FranchaisorController::class, 'franchaisorRequestDelete']);
     Route::resource('/admin/featured', FeaturedController::class);
     Route::resource('/admin/home-contents', HomeContents::class);
+    Route::post('/admin/home-contents/{id}', [HomeContents::class, 'update']);
     Route::resource('/admin/partners', PartnerController::class);
     Route::post('/admin/partners/{id}', [PartnerController::class, 'update']);
     Route::resource('/admin/testimonials', TestimonialController::class);
     Route::post('/admin/testimonials/{id}', [TestimonialController::class, 'update']);
+    Route::resource('/admin/categories', CategoryController::class);
+    Route::post('/admin/categories/{id}', [CategoryController::class, 'update']);
+    Route::resource('/admin/services', ServiceController::class);
+    Route::post('/admin/services/{id}', [ServiceController::class, 'update']);
 });
