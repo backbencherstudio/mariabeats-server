@@ -14,30 +14,51 @@ class CategoryController extends Controller
 
     public function index()
     {
-        $categories = Category::with('services')->get();
-        return $this->sendResponse($categories, 'Categories fetched successfully');
+        try {
+            $categories = Category::with('services')->get();
+            return $this->sendResponse($categories, 'Categories fetched successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
 
     public function store(Request $request)
     {
-        $category = Category::create($request->all());
-        return $this->sendResponse($category, 'Category created successfully');
+        try {
+            $category = Category::create($request->all());
+            return $this->sendResponse($category, 'Category created successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
 
     public function show(Category $category)
     {
-        return $this->sendResponse($category, 'Category fetched successfully');
+        try {
+            $category = Category::with('services')->find($category->id);
+            return $this->sendResponse($category, 'Category fetched successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
     
     public function update(Request $request, Category $category)
     {
-        $category->update($request->all());
-        return $this->sendResponse($category, 'Category updated successfully');
+        try {
+            $category->update($request->all());
+            return $this->sendResponse($category, 'Category updated successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
     
     public function destroy(Category $category)
     {
-        $category->delete();
-        return $this->sendResponse(null, 'Category deleted successfully');
+        try {
+            $category->delete();
+            return $this->sendResponse(null, 'Category deleted successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
 }

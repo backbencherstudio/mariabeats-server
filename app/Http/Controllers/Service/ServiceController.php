@@ -13,31 +13,51 @@ class ServiceController extends Controller
 
     public function index()
     {
-        $services = Service::with('category')->get();
-        return $this->sendResponse($services, 'Services fetched successfully');
+        try {
+            $services = Service::with('category')->get();
+            return $this->sendResponse($services, 'Services fetched successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
 
     public function store(Request $request)
     {
-        // dd($request->all());
-        $service = Service::create($request->all());
-        return $this->sendResponse($service, 'Service created successfully');
+        try {
+            $service = Service::create($request->all());
+            return $this->sendResponse($service, 'Service created successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
 
     public function show(Service $service)
     {
-        return $this->sendResponse($service, 'Service fetched successfully');
+        try {
+            $service = Service::with('category')->find($service->id);
+            return $this->sendResponse($service, 'Service fetched successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
 
     public function update(Request $request, Service $service)
     {
-        $service->update($request->all());
-        return $this->sendResponse($service, 'Service updated successfully');
+        try {
+            $service->update($request->all());
+            return $this->sendResponse($service, 'Service updated successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
 
     public function destroy(Service $service)
     {
-        $service->delete();
-        return $this->sendResponse(null, 'Service deleted successfully');
+        try {
+            $service->delete();
+            return $this->sendResponse(null, 'Service deleted successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
     }
 }
