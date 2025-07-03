@@ -13,6 +13,7 @@ use App\Http\Controllers\Partner\PartnerController;
 use App\Http\Controllers\Service\ServiceController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Testimonial\TestimonialController;
+use App\Http\Controllers\Cta\CtaController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -61,10 +62,17 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::post('/admin/home-contents/{id}', [HomeContents::class, 'update']);
     Route::resource('/admin/partners', PartnerController::class);
     Route::post('/admin/partners/{id}', [PartnerController::class, 'update']);
+    Route::delete('/admin/partners-logo/{id}', [PartnerController::class, 'deletePartnerLogo']);
     Route::resource('/admin/testimonials', TestimonialController::class);
     Route::post('/admin/testimonials/{id}', [TestimonialController::class, 'update']);
+    Route::delete('/admin/testimonials/{id}', [TestimonialController::class, 'destroy']);
     Route::resource('/admin/categories', CategoryController::class);
     Route::post('/admin/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy']);
     Route::resource('/admin/services', ServiceController::class);
     Route::post('/admin/services/{id}', [ServiceController::class, 'update']);
+    Route::delete('/admin/services/{id}', [ServiceController::class, 'destroy']);
+    Route::resource('/admin/cta', CtaController::class);
+    Route::post('/admin/cta/{id}', [CtaController::class, 'update']);
+    Route::delete('/admin/cta/{id}', [CtaController::class, 'destroy']);
 });

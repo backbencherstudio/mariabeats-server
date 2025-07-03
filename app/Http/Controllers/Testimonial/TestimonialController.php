@@ -112,6 +112,7 @@ class TestimonialController extends Controller
     {
         try {
             $testimonials = Testimonials::find($id);
+            // dd($testimonials);
             $testimonials->delete();
             return $this->sendResponse($testimonials, 'Testimonials deleted successfully');
         } catch (\Exception $e) {

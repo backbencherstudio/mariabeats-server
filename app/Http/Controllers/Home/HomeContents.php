@@ -91,7 +91,7 @@ class HomeContents extends Controller
     public function update(Request $request, string $id)
     {
         try {
-            dd($id);
+            // dd($id);
             $homeContents = HomeContentsModel::find($id);
             if ($request->hasFile('video')) {
                 $video = $request->file('video');

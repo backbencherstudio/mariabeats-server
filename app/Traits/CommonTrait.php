@@ -26,6 +26,7 @@ trait CommonTrait
         $cresponse['status'] = 'success';
         $cresponse['success'] = true;
         $cresponse['data'] = $response;
+        $cresponse['message'] = $message;
         return response()->json($cresponse, 200, array('Content-Type'=>'application/json', 'charset'=>'utf-8' ));
     }
 

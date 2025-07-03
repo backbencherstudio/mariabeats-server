@@ -50,17 +50,25 @@ class PartnerController extends Controller
     {
         try {
             // Create partner
-            $partner = Partners::create($request->except(array_keys($request->allFiles())));
+            $partner = Partners::create($request->except(['brand_logos']));
             
-            // Handle logo uploads
-            $allFiles = $request->allFiles();
-            foreach ($allFiles as $key => $file) {
-                if (strpos($key, 'brand_logos') === 0) {
-                    $path = Storage::put('partners', $file);
-                    PartnerLogo::create([
-                        'partner_id' => $partner->id,
-                        'logo' => $path
-                    ]);
+            // Handle logo uploads - get all brand_logos files
+            if ($request->hasFile('brand_logos')) {
+                $files = $request->file('brand_logos');
+                
+                // Handle both single file and multiple files
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                
+                foreach ($files as $file) {
+                    if ($file && $file->isValid()) {
+                        $path = Storage::put('partners', $file);
+                        PartnerLogo::create([
+                            'partner_id' => $partner->id,
+                            'logo' => $path
+                        ]);
+                    }
                 }
             }
             
@@ -119,21 +127,19 @@ class PartnerController extends Controller
             $partners = Partners::find($id);
             
             // Update partner data
-            $partners->update($request->except(array_keys($request->allFiles())));
+            $partners->update($request->except(['brand_logos']));
             
             // Handle existing logo IDs - keep only the ones in the request
-            if ($request->has('brand_logos')) {
-                $brandLogosData = json_decode($request->brand_logos, true);
-                $existingLogoIds = collect($brandLogosData)->pluck('id')->toArray();
+            if ($request->has('existing_logos')) {
+                $existingLogosData = json_decode($request->existing_logos, true);
+                $existingLogoIds = collect($existingLogosData)->pluck('id')->toArray();
                 
                 // Get all logos of the partner
                 $allPartnerLogos = $partners->logos;
-                // dd($allPartnerLogos);
                 
                 // Check which logos should be deleted (not in the provided array)
                 foreach ($allPartnerLogos as $logo) {
                     if (!in_array($logo->id, $existingLogoIds)) {
-                        // dd(!in_array($logo->id, $existingLogoIds));
                         // Delete file from storage
                         Storage::delete($logo->logo);
                         // Delete database record
@@ -142,15 +148,23 @@ class PartnerController extends Controller
                 }
             }
             
-            // Handle new logo uploads
-            $allFiles = $request->allFiles();
-            foreach ($allFiles as $key => $file) {
-                if (strpos($key, 'brand_logos') === 0) {
-                    $path = Storage::put('partners', $file);
-                    PartnerLogo::create([
-                        'partner_id' => $partners->id,
-                        'logo' => $path
-                    ]);
+            // Handle new logo uploads - get all brand_logos files
+            if ($request->hasFile('brand_logos')) {
+                $files = $request->file('brand_logos');
+                
+                // Handle both single file and multiple files
+                if (!is_array($files)) {
+                    $files = [$files];
+                }
+                
+                foreach ($files as $file) {
+                    if ($file && $file->isValid()) {
+                        $path = Storage::put('partners', $file);
+                        PartnerLogo::create([
+                            'partner_id' => $partners->id,
+                            'logo' => $path
+                        ]);
+                    }
                 }
             }
             
@@ -176,6 +190,22 @@ class PartnerController extends Controller
             $partners = Partners::find($id);
             $partners->delete();
             return $this->sendResponse($partners, 'Partners deleted successfully');
+        } catch (\Exception $e) {
+            return $this->sendError($e->getMessage(), [], 500);
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function deletePartnerLogo(string $id)
+    {
+        // dd($id);
+        try {
+            $partnerLogo = PartnerLogo::find($id);
+            Storage::delete($partnerLogo->logo);
+            $partnerLogo->delete();
+            return $this->sendResponse($partnerLogo, 'Partner logo deleted successfully');
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), [], 500);
         }

@@ -41,9 +41,11 @@ class ServiceController extends Controller
         }
     }
 
-    public function update(Request $request, Service $service)
+    public function update(Request $request, $id)
     {
+        // dd($id);
         try {
+            $service = Service::find($id);
             $service->update($request->all());
             return $this->sendResponse($service, 'Service updated successfully');
         } catch (\Exception $e) {
@@ -51,9 +53,10 @@ class ServiceController extends Controller
         }
     }
 
-    public function destroy(Service $service)
+    public function destroy($id)
     {
         try {
+            $service = Service::find($id);
             $service->delete();
             return $this->sendResponse(null, 'Service deleted successfully');
         } catch (\Exception $e) {

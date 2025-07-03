@@ -32,9 +32,10 @@ class CategoryController extends Controller
         }
     }
 
-    public function show(Category $category)
+    public function show($id)
     {
         try {
+            $category = Category::find($id);
             $category = Category::with('services')->find($category->id);
             return $this->sendResponse($category, 'Category fetched successfully');
         } catch (\Exception $e) {
@@ -42,9 +43,10 @@ class CategoryController extends Controller
         }
     }
     
-    public function update(Request $request, Category $category)
+    public function update(Request $request, $id)
     {
         try {
+            $category = Category::find($id);
             $category->update($request->all());
             return $this->sendResponse($category, 'Category updated successfully');
         } catch (\Exception $e) {
@@ -52,9 +54,10 @@ class CategoryController extends Controller
         }
     }
     
-    public function destroy(Category $category)
+    public function destroy($id)
     {
         try {
+            $category = Category::find($id);
             $category->delete();
             return $this->sendResponse(null, 'Category deleted successfully');
         } catch (\Exception $e) {
