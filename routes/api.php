@@ -14,6 +14,7 @@ use App\Http\Controllers\Service\ServiceController;
 use App\Http\Controllers\Category\CategoryController;
 use App\Http\Controllers\Testimonial\TestimonialController;
 use App\Http\Controllers\Cta\CtaController;
+use App\Http\Controllers\News\NewsController;
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -31,7 +32,16 @@ Route::get('/featured', [FeaturedController::class, 'index']);
 Route::post('/otp-verify', [AuthController::class, 'otpVerify']);
 Route::post('/reset-password', [AuthController::class, 'resetPassword']);
 Route::get('/home-contents', [HomeContents::class, 'index']);
-
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/service/{id}', [ServiceController::class, 'show']);
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/category/{id}', [CategoryController::class, 'show']);
+Route::get('/cta', [CtaController::class, 'index']);
+Route::get('/cta/{id}', [CtaController::class, 'show']);
+Route::get('/partners', [PartnerController::class, 'index']);
+Route::get('/testimonials', [TestimonialController::class, 'index']);
+Route::get('/news', [NewsController::class, 'index']);
+Route::get('/news/{id}', [NewsController::class, 'show']);
 
 
 Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
@@ -75,4 +85,7 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::resource('/admin/cta', CtaController::class);
     Route::post('/admin/cta/{id}', [CtaController::class, 'update']);
     Route::delete('/admin/cta/{id}', [CtaController::class, 'destroy']);
+    Route::resource('/admin/news', NewsController::class);
+    Route::post('/admin/news/{id}', [NewsController::class, 'update']);
+    Route::delete('/admin/news/{id}', [NewsController::class, 'destroy']);
 });
