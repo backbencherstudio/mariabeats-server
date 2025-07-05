@@ -57,6 +57,7 @@ class ServiceController extends Controller
     {
         try {
             $service = Service::find($id);
+            // dd($service);
             $service->delete();
             return $this->sendResponse(null, 'Service deleted successfully');
         } catch (\Exception $e) {

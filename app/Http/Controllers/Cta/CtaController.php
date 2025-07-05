@@ -113,7 +113,7 @@ class CtaController extends Controller
                 $path = Storage::put('cta', $secondary_image);
                 $data['secondary_image'] = $path;
             }
-            dd($data);
+            // dd($data);
             $cta->update($data);
             return $this->sendResponse($cta, 'CTA updated successfully');
         } catch (\Exception $e) {
