@@ -8,7 +8,7 @@ use App\Traits\CommonTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
-class HomeContents extends Controller
+class HomeContentController extends Controller
 {
     use CommonTrait;
 
