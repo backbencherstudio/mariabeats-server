@@ -19,7 +19,7 @@ class HomeContentSeeder extends Seeder
                 'heading' => 'Home Content Video 1 Heading',
                 'description' => 'Home Content Video 1 Description',
                 'video_url' => 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
-                'button_text' => 'Home Content Video 1 Button Text',
+                'section_name' => 'home-video',
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
