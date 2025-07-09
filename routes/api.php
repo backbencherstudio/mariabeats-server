@@ -70,6 +70,7 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::resource('/admin/featured', FeaturedController::class);
     Route::resource('/admin/home-contents', HomeContentController::class);
     Route::post('/admin/home-contents/{id}', [HomeContentController::class, 'update']);
+    Route::delete('/admin/home-contents/{id}', [HomeContentController::class, 'destroy']);
     Route::resource('/admin/partners', PartnerController::class);
     Route::post('/admin/partners/{id}', [PartnerController::class, 'update']);
     Route::delete('/admin/partners-logo/{id}', [PartnerController::class, 'deletePartnerLogo']);

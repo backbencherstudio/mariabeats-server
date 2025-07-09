@@ -112,6 +112,9 @@ class HomeContentController extends Controller
     {
         try {
             $homeContents = HomeContentsModel::find($id);
+            if ($homeContents->video_url) {
+                Storage::delete($homeContents->video_url);
+            }
             $homeContents->delete();
             return $this->sendResponse($homeContents, 'Home Contents deleted successfully');
         } catch (\Exception $e) {

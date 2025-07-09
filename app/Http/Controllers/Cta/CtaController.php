@@ -128,6 +128,12 @@ class CtaController extends Controller
     {
         try {
             $cta = Cta::find($id);
+            if ($cta->bg_image) {
+                Storage::delete($cta->bg_image);
+            }
+            if ($cta->secondary_image) {
+                Storage::delete($cta->secondary_image);
+            }
             $cta->delete();
             return $this->sendResponse($cta, 'CTA deleted successfully');
         } catch (\Exception $e) {
