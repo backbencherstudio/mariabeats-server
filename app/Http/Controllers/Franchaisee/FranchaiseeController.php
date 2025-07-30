@@ -26,6 +26,9 @@ class FranchaiseeController extends Controller
     public function index(Request $request)
     {
         $query = User::where('role', 'user');
+        // get the approved franchaisee from franchaisee_requests table
+        $approvedFranchaisees = FranchaiseeRequest::where('status', 'approved')->get();
+        
         $type = $request->type;
         if ($type == 'request') {
             $query->where('approved_at', null);
@@ -325,7 +328,39 @@ class FranchaiseeController extends Controller
         try {
             $franchaiseeRequest = FranchaiseeRequest::find($id);
             $franchaiseeRequest->status = $request->status;
+            // when status is approved, create a new user
+            if ($request->status == 'approved') {
+                $user = new User();
+                $user->name = $franchaiseeRequest->name;
+                $user->email = $franchaiseeRequest->email;
+                $user->password = Hash::make('password');
+                $user->role = 'user';
+                $user->approved_at = now();
+                $user->phone_number = $franchaiseeRequest->phone_number;
+                if ($franchaiseeRequest->country) {
+                    $country = Country::where('name', $franchaiseeRequest->country)->first();
+                    if ($country) {
+                        $user->country = $country->id;
+                    }
+                }
+                $user->investment = $franchaiseeRequest->investment_amount;
+                $user->timeframe = $franchaiseeRequest->timeframe;
+                $user->joined_at = now();
+                $user->end_at = now()->addYears(1);
+                $user->franchaisor_id = $franchaiseeRequest->franchaisor_id;
+                $user->save();
+            }
+
+            if ($request->status == 'rejected') {
+                $franchaiseeRequest->status = 'rejected';
+                $user = User::where('email', $franchaiseeRequest->email)->first();
+                if ($user) {
+                    $user->delete();
+                }
+            }
+
             $franchaiseeRequest->save();
+            
             return $this->sendResponse(['franchaiseeRequest' => $franchaiseeRequest, 'message' => 'Franchaisee request updated successfully']);
         } catch (\Exception $e) {
             return $this->sendError($e->getMessage(), 500);
