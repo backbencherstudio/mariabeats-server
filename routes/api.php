@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Article\ArticleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -42,6 +43,7 @@ Route::get('/partners', [PartnerController::class, 'index']);
 Route::get('/testimonials', [TestimonialController::class, 'index']);
 Route::get('/news', [NewsController::class, 'index']);
 Route::get('/news/{id}', [NewsController::class, 'show']);
+Route::get('/articles', [ArticleController::class, 'index']);
 
 
 Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
@@ -89,4 +91,6 @@ Route::group(['middleware' => 'auth:sanctum', 'role:admin'], function () {
     Route::resource('/admin/news', NewsController::class);
     Route::post('/admin/news/{id}', [NewsController::class, 'update']);
     Route::delete('/admin/news/{id}', [NewsController::class, 'destroy']);
+    Route::resource('/admin/articles', ArticleController::class);
+    Route::delete('/admin/articles/{id}', [ArticleController::class, 'destroy']);
 });
